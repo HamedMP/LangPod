@@ -8,7 +8,7 @@ export function generateSystemPrompt({
   language: string;
   nativeLanguage: string;
   topic: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'business/professional';
+  difficulty: "beginner" | "intermediate" | "advanced" | "business/professional";
 }) {
 
 

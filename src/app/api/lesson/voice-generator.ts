@@ -10,14 +10,14 @@ interface AudioSegment {
 export class VoiceGenerator {
   private apiKey: string;
   private voiceMap: Record<string, string> = {
-    'Voice1': '9BWtsMINqrJLrRacOk9x',
-    'Voice2': 'CwhRBWXzGAHq8TQ4Fs17',
+    "Voice1": "9BWtsMINqrJLrRacOk9x",
+    "Voice2": "CwhRBWXzGAHq8TQ4Fs17",
   };
 
   constructor() {
     const apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey) {
-      throw new Error('ELEVENLABS_API_KEY is not configured in environment');
+      throw new Error("ELEVENLABS_API_KEY is not configured in environment");
     }
     this.apiKey = apiKey;
   }
@@ -31,18 +31,18 @@ export class VoiceGenerator {
 
     while ((match = pattern.exec(conversation)) !== null) {
       if (match[4]) { // Pause segment
-        console.log('Processing pause segment');
+        console.log("Processing pause segment");
         const duration = parseFloat(match[4]);
         const silenceAudio = await this.generateSilence(duration);
         segments.push({
-          text: '',
+          text: "",
           audio: silenceAudio,
-          voice: '',
+          voice: "",
           isPause: true,
           duration
         });
       } else { // Voice segment
-        console.log('Processing voice segment:', match[3]?.slice(0, 50));
+        console.log("Processing voice segment:", match[3]?.slice(0, 50));
         const [_, persona, voice, text] = match;
         try {
           const audio = await this.generateAudio(text, this.voiceMap[voice]);
@@ -63,17 +63,17 @@ export class VoiceGenerator {
   }
 
   private async generateSilence(duration: number): Promise<string> {
-    const fs = require('fs').promises;
-    const path = require('path');
+    const fs = require("fs").promises;
+    const path = require("path");
     let silenceBuffer: Buffer;
     try {
       // Attempt to read the pre-generated 1-second silence WAV file
-      const silencePath = path.join(process.cwd(), 'public', 'silence.wav');
+      const silencePath = path.join(process.cwd(), "public", "silence.wav");
       silenceBuffer = await fs.readFile(silencePath);
-      console.log('Silence template file size:', silenceBuffer.length, 'bytes');
+      console.log("Silence template file size:", silenceBuffer.length, "bytes");
     } catch (err: any) {
-      console.error('Error loading silence file:', err);
-      return '';
+      console.error("Error loading silence file:", err);
+      return "";
     }
     
     // Determine how many seconds of silence are needed
@@ -86,29 +86,29 @@ export class VoiceGenerator {
     }
     
     const combinedBuffer = Buffer.concat(buffers);
-    console.log('Generated silence size:', combinedBuffer.length, 'bytes');
-    return combinedBuffer.toString('base64');
+    console.log("Generated silence size:", combinedBuffer.length, "bytes");
+    return combinedBuffer.toString("base64");
   }
 
  
   private async generateAudio(text: string, voiceId: string): Promise<string> {
     const cleanedText = text
       .trim()
-      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
       .slice(0, 1000);
 
     try {
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Accept': 'audio/wav',
-          'Content-Type': 'application/json',
-          'xi-api-key': this.apiKey,
+          "Accept": "audio/wav",
+          "Content-Type": "application/json",
+          "xi-api-key": this.apiKey,
         },
         body: JSON.stringify({
           text: cleanedText,
-          model_id: 'eleven_multilingual_v2',
-          output_format: 'wav',
+          model_id: "eleven_multilingual_v2",
+          output_format: "wav",
           voice_settings: {
             stability: 0.75,
             similarity_boost: 0.75,
@@ -119,14 +119,14 @@ export class VoiceGenerator {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.warn(`Failed to generate audio for text: ${cleanedText.slice(0, 50)}...`, errorData);
-        return '';
+        return "";
       }
 
       const audioBuffer = await response.arrayBuffer();
-      return Buffer.from(audioBuffer).toString('base64');
+      return Buffer.from(audioBuffer).toString("base64");
     } catch (error) {
-      console.error('Error generating audio:', error);
-      return '';
+      console.error("Error generating audio:", error);
+      return "";
     }
   }
 } 
