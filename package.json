@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@11labs/client": "^0.0.7",
     "@11labs/react": "^0.0.7",
     "@clerk/nextjs": "^6.12.0",
     "@heroicons/react": "^2.2.0",
