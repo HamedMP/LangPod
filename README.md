@@ -1,5 +1,7 @@
 # LangPod - AI Language Learning Platform
 
+![LangPod](./public/readme.jpg)
+
 LangPod is an AI-powered language learning platform that creates personalized, scenario-based lessons using ElevenLabs' voice technology. Built for the ElevenLabs x a16z WW Hackathon, it generates dynamic, contextual learning experiences tailored to each user's interests, proficiency level, and learning goals.
 
 ## Tech Stack
