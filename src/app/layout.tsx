@@ -5,7 +5,6 @@ import { getApiKey } from "@/app/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { KeyProvider } from "@/components/key-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Card } from "@/components/ui/card";
 import { ClerkProvider } from "@clerk/nextjs";
 import {
   SidebarInset,
@@ -64,16 +63,13 @@ export default async function RootLayout({
               <KeyProvider apiKey={apiKey}>
                 <SidebarProvider>
                   <AppSidebar />
-                  <SidebarInset>
+                  <SidebarInset className="flex flex-1">
                     <header className="relative flex h-[60px] shrink-0 items-center justify-center">
                       <SidebarTrigger className="absolute left-3" />
+                      Hero
                     </header>
-                    <div className="p-4">
-                      <div className="mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
-                        <Card className="rounded-lg p-px shadow-lg">
-                          <div className="bg-card rounded-lg">{children}</div>
-                        </Card>
-                      </div>
+                    <div className="flex flex-1 h-full w-full lg:mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
+                      {children}
                     </div>
                   </SidebarInset>
                 </SidebarProvider>

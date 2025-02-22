@@ -4,8 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { Logo } from "@/components/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -19,21 +25,45 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { demos } from "@/lib/demos";
-import { PiIcon } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} className="bg-background">
       <SidebarHeader className="h-[60px] px-[21px]">
         <div className="flex h-full items-center justify-between px-1 pl-0">
           <Link href="/" className="flex flex-row items-center gap-2">
-            <p className="text-lg font-bold">LangPod</p>
+            <p className="text-xl font-bold text-primary">LangPod</p>
           </Link>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-background px-2">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Select>
+                    <SelectTrigger className="w-full bg-sidebar-accent border-none ">
+                      <SelectValue placeholder="Select a language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">🇺🇸 English</SelectItem>
+                      <SelectItem value="es">🇪🇸 Spanish</SelectItem>
+                      <SelectItem value="fr">🇫🇷 French</SelectItem>
+                      <SelectItem value="de">🇩🇪 German</SelectItem>
+                      <SelectItem value="it">🇮🇹 Italian</SelectItem>
+                      <SelectItem value="ja">🇯🇵 Japanese</SelectItem>
+                      <SelectItem value="zh">🇨🇳 Chinese</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {demos.map((demo) => (
           <SidebarGroup key={demo.name}>
             <SidebarGroupLabel>{demo.name}</SidebarGroupLabel>
