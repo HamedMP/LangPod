@@ -11,6 +11,8 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
       .string()
       .min(1, "Clerk publishable key is required"),
+    NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1, "PostHog key is required"),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().min(1, "PostHog host is required"),
   },
   runtimeEnv: {
     ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY,
@@ -18,5 +20,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
+    NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   },
 });

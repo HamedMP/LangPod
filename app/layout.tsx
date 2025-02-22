@@ -21,6 +21,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
+import { PostHogProvider } from "@/providers/PosthogProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -51,39 +52,41 @@ export default async function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning className="dark">
         <body>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            forcedTheme="dark"
-            disableTransitionOnChange
-          >
-            <KeyProvider apiKey={apiKey}>
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset className="background-gradient">
-                  <header className="relative flex h-[60px] shrink-0 items-center justify-center">
-                    <SidebarTrigger className="absolute left-3" />
-                    <SignedOut>
-                      <SignInButton />
-                    </SignedOut>
-                    <SignedIn>
-                      <UserButton />
-                    </SignedIn>
-                  </header>
-                  <div className="p-4">
-                    <div className="mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
-                      <Byline />
-                      <Card className="border-gradient rounded-lg p-px shadow-lg">
-                        <div className="bg-card rounded-lg">{children}</div>
-                      </Card>
+          <PostHogProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem={false}
+              forcedTheme="dark"
+              disableTransitionOnChange
+            >
+              <KeyProvider apiKey={apiKey}>
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset className="background-gradient">
+                    <header className="relative flex h-[60px] shrink-0 items-center justify-center">
+                      <SidebarTrigger className="absolute left-3" />
+                      <SignedOut>
+                        <SignInButton />
+                      </SignedOut>
+                      <SignedIn>
+                        <UserButton />
+                      </SignedIn>
+                    </header>
+                    <div className="p-4">
+                      <div className="mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
+                        <Byline />
+                        <Card className="border-gradient rounded-lg p-px shadow-lg">
+                          <div className="bg-card rounded-lg">{children}</div>
+                        </Card>
+                      </div>
                     </div>
-                  </div>
-                </SidebarInset>
-              </SidebarProvider>
-            </KeyProvider>
-            <Toaster />
-          </ThemeProvider>
+                  </SidebarInset>
+                </SidebarProvider>
+              </KeyProvider>
+              <Toaster />
+            </ThemeProvider>
+          </PostHogProvider>
         </body>
       </html>
     </ClerkProvider>
