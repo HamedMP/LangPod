@@ -3,9 +3,22 @@ import { generateSystemPrompt } from "./system-prompt";
 import { VoiceGenerator } from "./voice-generator";
 import { concatenateAudio } from "./audio-utils";
 
-// Initialize OpenAI client
+// Initialize and clean the OpenAI API key from environment variables.
+// Ensure that the key does not include the "OPENAI_API_KEY=" prefix.
+let rawApiKey = process.env.OPENAI_API_KEY?.trim();
+if (!rawApiKey) {
+  // Throw an error if the API key is missing.
+  throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY in your environment.');
+}
+
+// If the key is misconfigured with a prefix, remove it.
+if (rawApiKey.startsWith('OPENAI_API_KEY=')) {
+  rawApiKey = rawApiKey.split('=')[1];
+}
+
+// Initialize OpenAI client with the cleaned API key
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure to add this to .env.local
+  apiKey: rawApiKey, // Use the cleaned API key value
 });
 
 export async function POST(request: Request) {

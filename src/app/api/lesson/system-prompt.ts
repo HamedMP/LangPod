@@ -14,7 +14,8 @@ export function generateSystemPrompt({
 
   return `
 
-Generate a language learning conversation similar to ChinesePod format, designed for ${difficulty} level non-native speakers learning ${language}. The conversation topic should be ${topic}.
+Generate a language learning conversation, designed for ${difficulty} level non-native speakers learning ${language}. The conversation topic should be ${topic}. 
+The name of the podcast should be LangPod.
 
 Instructions:
 
