@@ -27,10 +27,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader className="h-[60px] px-[21px]">
-        <div className="flex flex-row h-full items-center justify-between px-1 pl-0">
+        <div className="flex h-full items-center justify-between px-1 pl-0">
           <Link href="/" className="flex flex-row items-center gap-2">
-            {/* <Logo className="dark:text-white" height={16} /> */}
-            <PiIcon className="dark:text-white" height={16} />
             <p className="text-lg font-bold">LangPod</p>
           </Link>
         </div>

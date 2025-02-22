@@ -7,6 +7,8 @@ export const env = createEnv({
     AGENT_ID: z.string().min(1, "Agent ID is required"),
     CLERK_SECRET_KEY: z.string().min(1, "Clerk secret key is required"),
     DATABASE_URL: z.string().min(1, "Database URL is required"),
+    INNGEST_EVENT_KEY: z.string().min(1, "Inngest event key is required"),
+    INNGEST_SIGNING_KEY: z.string().min(1, "Inngest signing key is required"),
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
@@ -24,5 +26,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
+    INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
   },
 });
