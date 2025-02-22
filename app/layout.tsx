@@ -66,16 +66,9 @@ export default async function RootLayout({
                   <SidebarInset className="background-gradient">
                     <header className="relative flex h-[60px] shrink-0 items-center justify-center">
                       <SidebarTrigger className="absolute left-3" />
-                      <SignedOut>
-                        <SignInButton />
-                      </SignedOut>
-                      <SignedIn>
-                        <UserButton />
-                      </SignedIn>
                     </header>
                     <div className="p-4">
                       <div className="mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
-                        <Byline />
                         <Card className="border-gradient rounded-lg p-px shadow-lg">
                           <div className="bg-card rounded-lg">{children}</div>
                         </Card>
