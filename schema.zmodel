@@ -1,43 +1,78 @@
-// This is a sample model to get you started.
-
-/// A sample data source using local sqlite db.
-datasource db {
-    provider = 'sqlite'
-    url = 'file:./dev.db'
-}
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
-/// User model
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
 model User {
-    id       String @id @default(cuid())
-    email    String @unique @email @length(6, 32)
-    password String @password @omit
-    posts    Post[]
+  id              String    @id @default(uuid())
+  clerkId         String    @unique
+  targetLanguage  String
+  proficiencyLevel String
+  learningGoals   String[]
+  createdAt       DateTime  @default(now())
 
-    // everybody can signup
-    @@allow('create', true)
+  // Relations
+  progress        Progress[]
+  vocabulary      Vocabulary[]
+  lessons         Lesson[]
 
-    // full access by self
-    @@allow('all', auth() == this)
+  // Access policies
+//   @@allow('read,create', true)
+//   @@allow('update,delete', auth() == this)
 }
 
-/// Post model
-model Post {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    title     String   @length(1, 256)
-    content   String
-    published Boolean  @default(false)
-    author    User     @relation(fields: [authorId], references: [id])
-    authorId  String
+model Lesson {
+  id               String    @id @default(uuid())
+  title            String
+  scenarioContext  String
+  difficultyLevel  String
+  conversationScript Json
+  vocabulary       Json
+  grammarPoints    Json?
+  createdAt        DateTime  @default(now())
 
-    // allow read for all signin users
-    @@allow('read', auth() != null && published)
+  // Relations
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String
+  progress         Progress[]
 
-    // full access by author
-    @@allow('all', author == auth())
+  // Access policies
+//   @@allow('read', true)
+//   @@allow('create,update,delete', auth() == user)
+}
+
+model Progress {
+  id               String    @id @default(uuid())
+  completionStatus String
+  timeSpent        Int      // in seconds
+  createdAt        DateTime  @default(now())
+
+  // Relations
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String
+  lesson           Lesson    @relation(fields: [lessonId], references: [id])
+  lessonId         String
+
+  // Access policies
+//   @@allow('read,create,update,delete', auth() == user)
+}
+
+model Vocabulary {
+  id               String    @id @default(uuid())
+  word             String
+  translation      String
+  masteryLevel     Int      @default(0)
+  lastReviewed     DateTime?
+
+  // Relations
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String
+
+  // Access policies
+//   @@allow('read,create,update,delete', auth() == user)
 }
