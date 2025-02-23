@@ -75,9 +75,9 @@ export function AppSidebar({
           nativeLanguage: true;
           targetLanguage: true;
           lessons: {
-            orderBy: {
-              createdAt: "asc";
-            };
+            // orderBy: {
+            //   createdAt: "asc";
+            // };
           };
         };
       };
@@ -101,9 +101,9 @@ export function AppSidebar({
           nativeLanguage: true,
           targetLanguage: true,
           lessons: {
-            orderBy: {
-              createdAt: "asc",
-            },
+            // orderBy: {
+            //   createdAt: "asc",
+            // },
           },
         },
       },
@@ -159,6 +159,12 @@ export function AppSidebar({
         <div className="flex h-full items-center justify-between px-1 pl-0">
           <Link href="/" className="flex flex-row items-center gap-2">
             <p className="text-xl font-bold text-primary">LangPods</p>
+          </Link>
+          <Link
+            href="/?view=all"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            (all courses)
           </Link>
         </div>
       </SidebarHeader>
@@ -303,6 +309,7 @@ export function AppSidebar({
                     >
                       <Link
                         href={`/course/${userCourseId}/lesson/${lesson.id}`}
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors"
                       >
                         {lesson.title}
                       </Link>

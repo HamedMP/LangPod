@@ -8,11 +8,10 @@ import { Card } from "@/components/ui/card";
 import { useFindManyUserCourse } from "@/hooks/zenstack";
 import { LanguageSelector } from "@/components/language-selector";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, ChevronRight, Trophy, BookOpen } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { getCountryCode } from "@/lib/utils";
 import getUnicodeFlagIcon from "country-flag-icons/unicode";
-import { motion } from "framer-motion";
 import type { Course, Language, UserCourse } from "@prisma/client";
 
 interface UserCourseWithRelations extends UserCourse {
@@ -75,11 +74,11 @@ export default function Page() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-7xl mx-auto py-8">
-        <Skeleton className="h-12 w-48 mb-6" />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="p-4">
+        <Skeleton className="h-8 w-32 mb-4" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48" />
+            <Skeleton key={i} className="h-28" />
           ))}
         </div>
       </div>
@@ -97,123 +96,61 @@ export default function Page() {
 
   const typedUserCourses = userCourses as unknown as UserCourseWithRelations[];
 
-  // Group courses by level
-  const coursesByLevel = typedUserCourses.reduce(
-    (acc, course) => {
-      const level = course.course.level;
-      if (!acc[level]) acc[level] = [];
-      acc[level].push(course);
-      return acc;
-    },
-    {} as Record<string, UserCourseWithRelations[]>
-  );
-
   return (
-    <div className="container max-w-7xl mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">My Language Journey</h1>
-          <p className="text-muted-foreground text-lg">
-            You're learning {typedUserCourses.length} language
-            {typedUserCourses.length !== 1 ? "s" : ""}
-          </p>
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-2xl font-bold">My Courses</h1>
+          <span className="text-muted-foreground">
+            {typedUserCourses.length} courses
+          </span>
         </div>
         <Link href="/?new=true">
-          <Button size="lg" className="gap-2">
-            <Plus className="h-5 w-5" />
-            Start New Language
+          <Button variant="outline" size="sm" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Course
           </Button>
         </Link>
       </div>
 
-      <div className="space-y-10">
-        {Object.entries(coursesByLevel).map(([level, courses], levelIndex) => (
-          <motion.div
-            key={level}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: levelIndex * 0.1 }}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <Trophy className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-semibold">Level {level}</h2>
-              <span className="text-muted-foreground">
-                ({courses.length} courses)
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {courses.map((userCourse, index) => (
-                <motion.div
-                  key={userCourse.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link href={`/course/${userCourse.id}`}>
-                    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
-                      <div className="relative">
-                        <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.03] pointer-events-none">
-                          <span className="text-[80px] transform rotate-12 block">
-                            {getUnicodeFlagIcon(
-                              getCountryCode(
-                                userCourse.course.targetLanguage.code
-                              )
-                            )}
-                          </span>
-                        </div>
-                        <div className="p-6">
-                          <div className="flex items-start gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <span className="text-3xl transform group-hover:scale-110 transition-transform">
-                                  {getUnicodeFlagIcon(
-                                    getCountryCode(
-                                      userCourse.course.targetLanguage.code
-                                    )
-                                  )}
-                                </span>
-                                <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                                  {userCourse.course.targetLanguage.name}
-                                </h3>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                                <span>Learning from</span>
-                                <span className="text-lg">
-                                  {getUnicodeFlagIcon(
-                                    getCountryCode(
-                                      userCourse.course.nativeLanguage.code
-                                    )
-                                  )}
-                                </span>
-                                <span>
-                                  {userCourse.course.nativeLanguage.name}
-                                </span>
-                              </div>
-                              <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-sm">
-                                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                                  <span>0 lessons completed</span>
-                                </div>
-                                <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                                  <div className="h-full w-0 bg-primary rounded-full transition-all" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-4 border-t bg-muted/30 flex items-center justify-between">
-                          <span className="text-sm font-medium">
-                            Continue Learning
-                          </span>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {typedUserCourses.map((userCourse) => (
+          <Link href={`/course/${userCourse.id}`} key={userCourse.id}>
+            <Card className="group hover:shadow-lg transition-all duration-200">
+              <div className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-3xl">
+                    {getUnicodeFlagIcon(
+                      getCountryCode(userCourse.course.targetLanguage.code)
+                    )}
+                  </span>
+                  <div>
+                    <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
+                      {userCourse.course.targetLanguage.name}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                      <span>from</span>
+                      <span className="text-xl">
+                        {getUnicodeFlagIcon(
+                          getCountryCode(userCourse.course.nativeLanguage.code)
+                        )}
+                      </span>
+                      <span>{userCourse.course.nativeLanguage.name}</span>
+                    </div>
+                  </div>
+                  <div className="ml-auto">
+                    <div className="text-sm font-medium px-3 py-1.5 rounded-md bg-primary/10 text-primary">
+                      Level {userCourse.course.level}
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-3 border-t flex items-center justify-between text-sm text-muted-foreground">
+                  <span>0 lessons completed</span>
+                  <span>0% complete</span>
+                </div>
+              </div>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

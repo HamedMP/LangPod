@@ -40,11 +40,7 @@ export default function CoursePage() {
         include: {
           nativeLanguage: true;
           targetLanguage: true;
-          lessons: {
-            orderBy: {
-              createdAt: "asc";
-            };
-          };
+          lessons: true;
         };
       };
       user: true;
@@ -56,11 +52,7 @@ export default function CoursePage() {
         include: {
           nativeLanguage: true,
           targetLanguage: true,
-          lessons: {
-            orderBy: {
-              createdAt: "asc",
-            },
-          },
+          lessons: true,
         },
       },
       user: true,
