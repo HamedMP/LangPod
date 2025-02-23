@@ -158,7 +158,7 @@ export function AppSidebar({
       <SidebarHeader className="h-[60px] px-[21px]">
         <div className="flex h-full items-center justify-between px-1 pl-0">
           <Link href="/" className="flex flex-row items-center gap-2">
-            <p className="text-xl font-bold text-primary">LangPod</p>
+            <p className="text-xl font-bold text-primary">LangPods</p>
           </Link>
         </div>
       </SidebarHeader>

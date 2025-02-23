@@ -1,218 +1,299 @@
-// "use client";
+"use client";
 
-// import { Button } from "@/components/ui/button";
-// import { Slider } from "@/components/ui/slider";
-// import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
-// import { useQuery } from "@tanstack/react-query";
-// import { createLesson, AudioSegment } from "@/lib/api/lesson";
-// import { useEffect, useRef, useState } from "react";
-// import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
-// // this looks ait with full-width too, if u set min-w-fit on parent
-// // I will fix this when the endpoint loads faster
-// export const PodTab = () => {
-//   const audioRef = useRef<HTMLAudioElement | null>(null);
-//   const [isPlaying, setIsPlaying] = useState(false);
-//   const [currentTime, setCurrentTime] = useState(0);
-//   const [duration, setDuration] = useState(0);
-//   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
-//   const [segmentStartTimes, setSegmentStartTimes] = useState<number[]>([]);
+interface PodTabProps {
+  audioUrls: string[];
+  segments: Array<{ text: string; voice: string }>;
+}
 
-//   const lessonQuery = useQuery({
-//     queryKey: ["lesson"],
-//     queryFn: () => createLesson({
-//       topic: "travel",
-//       language: "Spanish",
-//       nativeLanguage: "English",
-//       difficulty: "intermediate"
-//     }),
-//     // Disable automatic refetching
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: false,
-//   });
+interface WordWithTiming {
+  text: string;
+  startTime: number;
+  endTime: number;
+}
 
-//   useEffect(() => {
-//     if (lessonQuery.data?.audio) {
-//       const audio = new Audio(`data:audio/mp3;base64,${lessonQuery.data.audio}`);
-//       audioRef.current = audio;
+export const PodTab = ({ audioUrls, segments }: PodTabProps) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const [skipAutoPlay, setSkipAutoPlay] = useState(false);
+  const [wordTimings, setWordTimings] = useState<WordWithTiming[]>([]);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-//       console.log("Audio loaded");
+  // Get speaker name based on voice ID
+  const getSpeakerName = (voice: string) => {
+    switch (voice) {
+      case "Voice1":
+        return "Sofia";
+      case "Voice2":
+        return "Juan";
+      case "Voice3":
+        return "Teacher";
+      default:
+        return "Speaker";
+    }
+  };
 
-//       // Calculate segment start times based on duration
-//       audio.addEventListener("loadedmetadata", () => {
-//         const segmentCount = lessonQuery.data.segments.length;
-//         const segmentDuration = audio.duration / segmentCount;
-//         const startTimes = Array.from({ length: segmentCount }, (_, i) => i * segmentDuration);
-//         console.log("Calculated start times:", startTimes);
-//         setSegmentStartTimes(startTimes);
-//         setDuration(audio.duration);
-//       });
+  // Calculate word timings based on duration
+  const calculateWordTimings = (text: string, totalDuration: number) => {
+    const words = text.split(/\s+/);
+    const timePerWord = totalDuration / words.length;
 
-//       const handleTimeUpdate = () => {
-//         if (!audioRef.current) return;
+    return words.map((word, index) => ({
+      text: word,
+      startTime: index * timePerWord,
+      endTime: (index + 1) * timePerWord,
+    }));
+  };
 
-//         setCurrentTime(audioRef.current.currentTime);
+  // Get word opacity based on current time
+  const getWordOpacity = (word: WordWithTiming, currentTime: number) => {
+    if (currentTime < word.startTime) return 0.25;
+    if (currentTime > word.endTime) return 1;
 
-//         console.log({
-//           currentTime: audioRef.current.currentTime,
-//           duration: audioRef.current.duration,
-//           segmentStartTimes,
-//           currentSegmentIndex
-//         });
+    // Transition during the word's time window
+    const progress =
+      (currentTime - word.startTime) / (word.endTime - word.startTime);
+    return 0.25 + progress * 0.75;
+  };
 
-//         // Find current segment based on time
-//         const currentSegment = segmentStartTimes.findIndex((startTime, index) => {
-//           const endTime = index < segmentStartTimes.length - 1
-//             ? segmentStartTimes[index + 1]
-//             : audioRef.current!.duration;
+  // Add a useEffect to reset skipAutoPlay on mount
+  useEffect(() => {
+    setSkipAutoPlay(false);
+  }, []);
 
-//           console.log(`Segment ${index}:`, { startTime, endTime, currentTime: audioRef.current!.currentTime });
+  // Initialize audio when component mounts or segment changes
+  useEffect(() => {
+    if (audioUrls.length === 0) return;
 
-//           return audioRef.current!.currentTime >= startTime && audioRef.current!.currentTime < endTime;
-//         });
+    const audio = new Audio(audioUrls[currentSegmentIndex]);
+    audioRef.current = audio;
+    setIsAudioLoaded(false);
 
-//         console.log("Found segment:", currentSegment);
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      setIsAudioLoaded(true);
 
-//         // If we're at the end of a segment, move to the next one
-//         if (currentSegment === -1 && audioRef.current.currentTime < audioRef.current.duration) {
-//           console.log("Between segments, trying to move to next");
-//           const nextSegmentIndex = currentSegmentIndex + 1;
-//           if (nextSegmentIndex < segmentStartTimes.length) {
-//             audioRef.current.currentTime = segmentStartTimes[nextSegmentIndex];
-//             setCurrentSegmentIndex(nextSegmentIndex);
-//           }
-//         } else if (currentSegment !== -1 && currentSegment !== currentSegmentIndex) {
-//           console.log("Updating segment index:", currentSegment);
-//           setCurrentSegmentIndex(currentSegment);
-//         }
-//       };
+      // Calculate word timings when audio duration is available
+      const currentSegmentText = segments[currentSegmentIndex].text;
+      setWordTimings(calculateWordTimings(currentSegmentText, audio.duration));
 
-//       const handleEnded = () => {
-//         console.log("Audio ended");
-//         setIsPlaying(false);
-//         setCurrentSegmentIndex(0);
-//         audio.currentTime = 0;
-//       };
+      // Clear any existing timeout
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current);
+      }
 
-//       audio.addEventListener("timeupdate", handleTimeUpdate);
-//       audio.addEventListener("ended", handleEnded);
+      if (!skipAutoPlay) {
+        autoPlayTimeoutRef.current = setTimeout(() => {
+          audio.play().catch(console.error);
+        }, 1000);
+      }
+    };
 
-//       return () => {
-//         audio.removeEventListener("timeupdate", handleTimeUpdate);
-//         audio.removeEventListener("ended", handleEnded);
-//         audio.pause();
-//         audio.remove();
-//         console.log("Audio cleanup");
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
 
-//       };
-//     }
-//   }, [lessonQuery.data, currentSegmentIndex, segmentStartTimes]);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setSkipAutoPlay(false);
+      if (currentSegmentIndex < audioUrls.length - 1) {
+        setCurrentSegmentIndex((prev) => prev + 1);
+      } else {
+        setCurrentTime(0);
+        audio.currentTime = 0;
+      }
+    };
 
-//   const togglePlayPause = () => {
-//     if (audioRef.current) {
-//       if (isPlaying) {
-//         audioRef.current.pause();
-//       } else {
-//         audioRef.current.play();
-//       }
-//       setIsPlaying(!isPlaying);
-//     }
-//   };
+    const handlePlay = () => {
+      setIsPlaying(true);
+    };
 
-//   const skipForward = () => {
-//     if (audioRef.current && currentSegmentIndex < (lessonQuery.data?.segments.length || 0) - 1) {
-//       const nextSegmentTime = segmentStartTimes[currentSegmentIndex + 1];
-//       audioRef.current.currentTime = nextSegmentTime;
-//       setCurrentSegmentIndex(currentSegmentIndex + 1);
-//     }
-//   };
+    const handlePause = () => setIsPlaying(false);
 
-//   const skipBackward = () => {
-//     if (audioRef.current && currentSegmentIndex > 0) {
-//       const previousSegmentTime = segmentStartTimes[currentSegmentIndex - 1];
-//       audioRef.current.currentTime = previousSegmentTime;
-//       setCurrentSegmentIndex(currentSegmentIndex - 1);
-//     }
-//   };
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
 
-//   const handleSliderChange = (value: number[]) => {
-//     if (audioRef.current && duration) {
-//       const newTime = (value[0] / 100) * duration;
-//       audioRef.current.currentTime = newTime;
-//     }
-//   };
+    audio.load();
 
-//   if (lessonQuery.isLoading) {
-//     return <div className="flex items-center justify-center h-full">Loading...</div>;
-//   }
+    return () => {
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current);
+      }
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.pause();
+      audio.remove();
+    };
+  }, [audioUrls, currentSegmentIndex, skipAutoPlay, segments]);
 
-//   if (lessonQuery.isError) {
-//     return (
-//       <div className="flex items-center justify-center h-full">
-//         Error loading lesson: {(lessonQuery.error as Error)?.message}
-//       </div>
-//     );
-//   }
+  // Handle play/pause
+  const togglePlayPause = async () => {
+    if (!audioRef.current || !isAudioLoaded) return;
 
-//   const formatTime = (seconds: number) => {
-//     const minutes = Math.floor(seconds / 60);
-//     const remainingSeconds = Math.floor(seconds % 60);
-//     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-//   };
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error("Error playing audio:", error);
+    }
+  };
 
-//   return (
-//     <div className="flex flex-col h-full">
-//       <ScrollArea className="flex-1 p-8 bg-muted/50 rounded-lg max-h-96">
-//         {lessonQuery.data?.segments.map((segment: AudioSegment, index: number) => (
-//           <p
-//             key={index}
-//             className={`text-4xl font-semibold text-center leading-relaxed mb-4 transition-colors duration-200 ${
-//               currentSegmentIndex === index
-//                 ? "text-primary"
-//                 : "text-foreground/80"
-//             }`}
-//           >
-//             {segment.text}
-//           </p>
-//         ))}
-//       </ScrollArea>
+  // Handle segment navigation
+  const skipForward = () => {
+    if (currentSegmentIndex < audioUrls.length - 1) {
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current);
+      }
+      audioRef.current?.pause();
+      setSkipAutoPlay(true); // Skip auto-play when using navigation buttons
+      setCurrentSegmentIndex((prev) => prev + 1);
+      setCurrentTime(0);
+    }
+  };
 
-//       <div className="border-t bg-background p-6 mt-3">
-//         <div className="mx-auto max-w-3xl space-y-4">
-//           <div className="flex items-center gap-2">
-//             <span className="text-sm font-medium text-muted-foreground">
-//               {formatTime(currentTime)}
-//             </span>
-//             <Slider
-//               value={[duration ? (currentTime / duration) * 100 : 0]}
-//               max={100}
-//               step={1}
-//               className="flex-1"
-//               onValueChange={handleSliderChange}
-//             />
-//             <span className="text-sm font-medium text-muted-foreground">
-//               {formatTime(duration)}
-//             </span>
-//           </div>
+  const skipBackward = () => {
+    if (currentSegmentIndex > 0) {
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current);
+      }
+      audioRef.current?.pause();
+      setSkipAutoPlay(true); // Skip auto-play when using navigation buttons
+      setCurrentSegmentIndex((prev) => prev - 1);
+      setCurrentTime(0);
+    }
+  };
 
-//           <div className="flex items-center justify-center gap-6">
-//             <Button variant="ghost" size="icon" onClick={skipBackward}>
-//               <SkipBack className="h-5 w-5" />
-//             </Button>
-//             <Button size="icon" variant="default" onClick={togglePlayPause}>
-//               {isPlaying ? (
-//                 <Pause className="h-5 w-5" />
-//               ) : (
-//                 <Play className="h-5 w-5" />
-//               )}
-//             </Button>
-//             <Button variant="ghost" size="icon" onClick={skipForward}>
-//               <SkipForward className="h-5 w-5" />
-//             </Button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
+  // Handle slider change
+  const handleSliderChange = (value: number[]) => {
+    if (audioRef.current && duration) {
+      const newTime = (value[0] / 100) * duration;
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  if (!audioUrls.length || !segments.length) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        No audio content available
+      </div>
+    );
+  }
+
+  const currentSegment = segments[currentSegmentIndex];
+  const speakerName = getSpeakerName(currentSegment.voice);
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 flex flex-col bg-muted/50 rounded-lg overflow-hidden">
+        {/* Audio controls - always visible */}
+        <div className="border-t bg-background p-6 mt-3">
+          <div className="mx-auto max-w-3xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground">
+                {formatTime(currentTime)}
+              </span>
+              <Slider
+                value={[duration ? (currentTime / duration) * 100 : 0]}
+                max={100}
+                step={1}
+                className="flex-1"
+                onValueChange={handleSliderChange}
+              />
+              <span className="text-sm font-medium text-muted-foreground">
+                {formatTime(duration)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-center gap-6">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={skipBackward}
+                disabled={currentSegmentIndex === 0}
+              >
+                <SkipBack className="h-5 w-5" />
+              </Button>
+              <Button
+                size="icon"
+                variant="default"
+                onClick={togglePlayPause}
+                disabled={!isAudioLoaded}
+              >
+                {isPlaying ? (
+                  <Pause className="h-5 w-5" />
+                ) : (
+                  <Play className="h-5 w-5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={skipForward}
+                disabled={currentSegmentIndex === audioUrls.length - 1}
+              >
+                <SkipForward className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        {/* Header with speaker info - always visible */}
+        <div className="flex items-center gap-2 p-4 border-b bg-background/50">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            <span className="text-sm font-medium">{speakerName}</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {currentSegmentIndex + 1} of {segments.length}
+          </span>
+        </div>
+
+        {/* Scrollable transcription area */}
+        <ScrollArea className="flex-1 p-8">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <p className="text-2xl font-medium text-center leading-relaxed break-words">
+              {wordTimings.map((word, index) => (
+                <span
+                  key={index}
+                  className="text-foreground"
+                  style={{
+                    opacity: getWordOpacity(word, currentTime),
+                    transition: "opacity 0.2s linear",
+                  }}
+                >
+                  {word.text}
+                  {index < wordTimings.length - 1 ? " " : ""}
+                </span>
+              ))}
+            </p>
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
+  );
+};

@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarTrigger className="absolute left-3" />
               {/* Hero */}
             </header>
-            <div className="flex flex-1 h-full w-full lg:mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
+            <div className="flex flex-1 h-full w-full lg:mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-2 lg:py-2">
               {children}
             </div>
           </SidebarInset>

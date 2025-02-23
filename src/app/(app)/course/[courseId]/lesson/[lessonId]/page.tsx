@@ -10,25 +10,25 @@ import { useAuth } from "@clerk/nextjs";
 import { useSidebar } from "@/contexts/sidebar-context";
 import { useEffect, useRef, useState } from "react";
 import type { Course, Language, Lesson } from "@prisma/client";
+import type { JsonValue } from "@prisma/client/runtime/library";
 import { generateLessonContent } from "@/app/actions/lesson";
 import { Button } from "@/components/ui/button";
+import { PodTab } from "@/app/(app)/lesson/_tabs/PodTab";
 
-interface LessonWithRelations extends Lesson {
+interface LessonWithRelations extends Omit<Lesson, "segments"> {
   course: Course & {
     nativeLanguage: Language;
     targetLanguage: Language;
     userCourses: { userId: string }[];
   };
+  segments: JsonValue;
 }
 
 export default function LessonPage() {
   const { courseId, lessonId } = useParams();
   const { userId } = useAuth();
   const { updateSidebarInfo } = useSidebar();
-  const audioRef = useRef<HTMLAudioElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [audioSources, setAudioSources] = useState<string[]>([]);
-  const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
 
   const {
     data: lesson,
@@ -88,17 +88,12 @@ export default function LessonPage() {
     };
   }, [lesson, courseId, updateSidebarInfo]);
 
-  // Handle audio segment completion and play next
-  const handleAudioEnded = () => {
-    if (currentAudioIndex < audioSources.length - 1) {
-      setCurrentAudioIndex((prev) => prev + 1);
-    }
-  };
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [audioSources, setAudioSources] = useState<string[]>([]);
+  const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
 
-  // Update audio sources when lesson data changes
   useEffect(() => {
     if (lesson) {
-      // Handle both old and new audio storage formats
       const sources = lesson.audioUrls?.length
         ? lesson.audioUrls
         : lesson.audioUrl
@@ -109,7 +104,6 @@ export default function LessonPage() {
     }
   }, [lesson]);
 
-  // Update audio source when currentAudioIndex changes
   useEffect(() => {
     if (audioRef.current && audioSources[currentAudioIndex]) {
       audioRef.current.src = audioSources[currentAudioIndex];
@@ -165,20 +159,9 @@ export default function LessonPage() {
             {typedLesson.course.level}
           </p>
           <div className="mt-4">
-            {audioSources.length > 0 ? (
-              <div className="space-y-2">
-                <audio
-                  ref={audioRef}
-                  controls
-                  onEnded={handleAudioEnded}
-                  className="w-full"
-                />
-                {audioSources.length > 1 && (
-                  <div className="text-sm text-muted-foreground">
-                    Playing segment {currentAudioIndex + 1} of{" "}
-                    {audioSources.length}
-                  </div>
-                )}
+            {typedLesson.audioUrls.length > 0 || typedLesson.audioUrl ? (
+              <div className="text-sm text-muted-foreground">
+                Audio content is ready
               </div>
             ) : isGenerating ? (
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -202,9 +185,21 @@ export default function LessonPage() {
             <TabsTrigger value="coach">Coach</TabsTrigger>
           </TabsList>
           <TabsContent value="pod" className="h-[600px]">
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              Pod feature coming soon
-            </div>
+            <PodTab
+              audioUrls={
+                typedLesson.audioUrls.length > 0
+                  ? typedLesson.audioUrls
+                  : typedLesson.audioUrl
+                    ? [typedLesson.audioUrl]
+                    : []
+              }
+              segments={
+                (typedLesson.segments as Array<{
+                  text: string;
+                  voice: string;
+                }>) || []
+              }
+            />
           </TabsContent>
           <TabsContent value="conversation" className="h-[600px]">
             <ConversationTab />
