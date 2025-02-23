@@ -3,19 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+
 
 import {
   Sidebar,
@@ -30,6 +19,15 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { demos } from "@/lib/demos";
+import Twemoji from "./common/Twemoji";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { ChevronDown, Plus } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -49,20 +47,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Select>
-                    <SelectTrigger className="w-full bg-sidebar-accent border-none ">
-                      <SelectValue placeholder="Select a language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">🇺🇸 English</SelectItem>
-                      <SelectItem value="es">🇪🇸 Spanish</SelectItem>
-                      <SelectItem value="fr">🇫🇷 French</SelectItem>
-                      <SelectItem value="de">🇩🇪 German</SelectItem>
-                      <SelectItem value="it">🇮🇹 Italian</SelectItem>
-                      <SelectItem value="ja">🇯🇵 Japanese</SelectItem>
-                      <SelectItem value="zh">🇨🇳 Chinese</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-full bg-sidebar-accent border-none p-3 rounded-md flex items-center justify-between">
+                      Select a course
+                      <ChevronDown className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56"  >
+                      <DropdownMenuItem>
+                        <div className="flex items-center gap-2">
+                          <Twemoji emoji="🇬🇧" />
+                          <span>English</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <div className="flex items-center gap-2">
+                          <Twemoji emoji="🇨🇳" />
+                          <span>Chinese</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <Link href="/courses" className="block">
+                        <DropdownMenuItem>
+                          <div className="flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            <span>Add a new course</span>
+                          </div>
+                        </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
