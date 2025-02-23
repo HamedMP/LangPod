@@ -1,9 +1,15 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useFindManyUser } from "@/hooks/zenstack";
-import type { Course } from "@prisma/client";
+import type { Course, Language } from "@prisma/client";
+
+interface UserWithCourses {
+  studentCourses: (Course & {
+    nativeLanguage: Language;
+    targetLanguage: Language;
+  })[];
+}
 
 export function useUserCourses() {
   const { userId } = useAuth();

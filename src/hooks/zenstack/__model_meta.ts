@@ -148,6 +148,7 @@ const metadata = {
                 }, outcome: {
                     name: "outcome",
                     type: "String",
+                    isOptional: true,
                 }, level: {
                     name: "level",
                     type: "String",

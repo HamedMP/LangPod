@@ -46,7 +46,7 @@ model Course {
   nativeLanguageId String
   targetLanguage   Language @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
   targetLanguageId String
-  outcome          String
+  outcome          String?
   level            String
   createdAt        DateTime @default(now())
   student          User     @relation("StudentCourses", fields: [studentId], references: [id])

@@ -29,6 +29,8 @@ model User {
   studentCourses Course[]    @relation("StudentCourses")
   tutorCourses  Course[]    @relation("TutorCourses")
   lessons       Lesson[]
+
+  @@allow('read', auth() != null)
 }
 
 model Language {
@@ -52,7 +54,7 @@ model Course {
   nativeLanguageId String
   targetLanguage Language @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
   targetLanguageId String
-  outcome String
+  outcome         String? 
   level          String   // A1, A2, B1, B2, C1, C2
   createdAt      DateTime @default(now())
 
@@ -81,6 +83,8 @@ model Lesson {
   user             User      @relation(fields: [userId], references: [id])
   userId           String
   progress         ProgressStatus
+
+  @@allow('all', auth() != null)
 }
 
 model LessonCatalog {
@@ -91,6 +95,8 @@ model LessonCatalog {
   targetLanguageId String
   content        Json     // Contains: { lessons: [{ index, title, description, text, audioUrl, imageUrl, difficulty }] }
   createdAt      DateTime @default(now())
+
+  @@allow('read', true)
 }
 
 enum ProgressStatus {

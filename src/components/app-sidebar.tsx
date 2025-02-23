@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import {
   RedirectToSignIn,
@@ -32,9 +32,37 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ChevronDown, Plus } from "lucide-react";
+import { Lesson } from "@prisma/client";
+import { useFindManyUser } from "@/hooks/zenstack";
+import { useAuth } from "@clerk/nextjs";
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  courseId?: string;
+  courseName?: string;
+  lessons?: Lesson[];
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  courseId,
+  courseName,
+  lessons,
+  ...props
+}: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { userId } = useAuth();
+  const { data: user } = useFindManyUser({
+    where: {
+      clerkId: userId ?? "",
+    },
+    select: {
+      studentCourses: {
+        include: {
+          nativeLanguage: true,
+          targetLanguage: true,
+        },
+      },
+    },
+  });
 
   return (
     <Sidebar {...props} className="bg-background">
@@ -53,22 +81,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton asChild>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="w-full bg-sidebar-accent border-none p-3 rounded-md flex items-center justify-between">
-                      Select a course
+                      {courseName || "Select a course"}
                       <ChevronDown className="h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
-                      <DropdownMenuItem>
-                        <div className="flex items-center gap-2">
-                          <Twemoji emoji="🇬🇧" />
-                          <span>English</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <div className="flex items-center gap-2">
-                          <Twemoji emoji="🇨🇳" />
-                          <span>Chinese</span>
-                        </div>
-                      </DropdownMenuItem>
+                      {user?.[0]?.studentCourses?.map((course) => (
+                        <DropdownMenuItem
+                          key={course.id}
+                          onClick={() => router.push(`/course/${course.id}`)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Twemoji emoji={course.targetLanguage.code} />
+                            <span>
+                              {course.targetLanguage.name} ({course.level})
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
                       <DropdownMenuSeparator />
                       <Link href="/courses" className="block">
                         <DropdownMenuItem>
@@ -85,6 +114,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {courseId && lessons && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Lessons</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {lessons.map((lesson) => (
+                  <SidebarMenuItem key={lesson.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        pathname === `/course/${courseId}/lesson/${lesson.id}`
+                      }
+                    >
+                      <Link href={`/course/${courseId}/lesson/${lesson.id}`}>
+                        {lesson.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {demos.map((demo) => (
           <SidebarGroup key={demo.name}>

@@ -27,7 +27,7 @@ erDiagram
 - CREATE
 
 - READ
-
+  - ✅ auth() != null
 - UPDATE
 
 - DELETE
@@ -63,7 +63,7 @@ erDiagram
   String id PK 
   String nativeLanguageId FK 
   String targetLanguageId FK 
-  String outcome  
+  String outcome  "?"
   String level  
   DateTime createdAt  
   String studentId FK 
@@ -106,13 +106,13 @@ erDiagram
 
 ```
 - CREATE
-
+  - ✅ auth() != null
 - READ
-
+  - ✅ auth() != null
 - UPDATE
-
+  - ✅ auth() != null
 - DELETE
-
+  - ✅ auth() != null
 ## LessonCatalog
 ```mermaid
 erDiagram
@@ -131,7 +131,7 @@ erDiagram
 - CREATE
 
 - READ
-
+  - ✅ true
 - UPDATE
 
 - DELETE

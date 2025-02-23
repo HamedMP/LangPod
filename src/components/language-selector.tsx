@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useFindManyLanguage, useCreateCourse } from "@/hooks/zenstack";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,13 +27,15 @@ export function LanguageSelector() {
   const [nativeLanguage, setNativeLanguage] = useState("");
   const [level, setLevel] = useState("");
 
-  const { data: languages } = useFindManyLanguage();
+  const { data: languages, isLoading } = useFindManyLanguage();
   const createCourse = useCreateCourse();
 
-  const handleCreateCourse = async () => {
+  const handleLanguageSelect = async (langId: string) => {
+    setNativeLanguage(langId);
+
     try {
-      if (!userId || !nativeLanguage || !targetLanguage || !level) {
-        toast.error("Please complete all selections");
+      if (!userId) {
+        toast.error("Please sign in first");
         return;
       }
 
@@ -47,7 +48,7 @@ export function LanguageSelector() {
           },
           nativeLanguage: {
             connect: {
-              id: nativeLanguage,
+              id: langId,
             },
           },
           targetLanguage: {
@@ -59,11 +60,14 @@ export function LanguageSelector() {
         },
       });
 
-      if (result?.id) {
-        toast.success("Course created successfully!");
-        router.push(`/course/${result.id}`);
+      if (!result) {
+        throw new Error("Failed to create course");
       }
+
+      toast.success("Course created successfully!");
+      router.push(`/course/${result.id}`);
     } catch (error) {
+      console.error("Course creation error:", error);
       toast.error("Failed to create course");
     }
   };
@@ -78,41 +82,46 @@ export function LanguageSelector() {
     }
   };
 
-  if (!languages) return null;
+  if (isLoading || !languages) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-muted-foreground">
+          Loading languages...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container max-w-4xl mx-auto">
-      <AnimatePresence mode="wait">
+    <div className="flex flex-col w-full">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+          {step === 1
+            ? "Choose Language to Learn"
+            : step === 2
+              ? "Select Your Level"
+              : "What's Your Native Language?"}
+        </h1>
         {step > 1 && (
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="mb-8 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2"
             onClick={handleBack}
           >
             <ArrowLeft className="h-4 w-4" />
             Back
-          </motion.button>
+          </Button>
         )}
+      </div>
 
+      <AnimatePresence mode="wait">
         {step === 1 && (
           <motion.div
             key="step1"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
           >
-            <div className="text-center space-y-2">
-              <h2 className="text-4xl font-semibold">
-                What language do you want to learn?
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Choose your target language
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {languages.map((lang) => (
                 <Button
@@ -145,15 +154,7 @@ export function LanguageSelector() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
           >
-            <div className="text-center space-y-2">
-              <h2 className="text-4xl font-semibold">Choose your level</h2>
-              <p className="text-xl text-muted-foreground">
-                Select your starting point
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {levels.map((lvl) => (
                 <Button
@@ -189,25 +190,12 @@ export function LanguageSelector() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
           >
-            <div className="text-center space-y-2">
-              <h2 className="text-4xl font-semibold">
-                What's your native language?
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Select the language you speak
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {languages.map((lang) => (
                 <Button
                   key={lang.id}
-                  onClick={() => {
-                    setNativeLanguage(lang.id);
-                    handleCreateCourse();
-                  }}
+                  onClick={() => handleLanguageSelect(lang.id)}
                   className="py-8 group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-slate-50 h-fit"
                   variant="outline"
                 >
