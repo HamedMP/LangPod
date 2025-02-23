@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PodTab } from "./_tabs/PodTab";
+// import { PodTab } from "./_tabs/PodTab";
 import { ConversationTab } from "./_tabs/ConversationTab";
 import { CoachTab } from "./_tabs/CoachTab";
 
@@ -14,9 +14,7 @@ export default function Page() {
           <TabsTrigger value="conversation">Conversation</TabsTrigger>
           <TabsTrigger value="coach">Coach</TabsTrigger>
         </TabsList>
-        <TabsContent value="pod">
-          <PodTab />
-        </TabsContent>
+        <TabsContent value="pod">{/* <PodTab /> */}</TabsContent>
         <TabsContent value="conversation">
           <ConversationTab />
         </TabsContent>
