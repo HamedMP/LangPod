@@ -1,25 +1,9 @@
-import {OpenAI } from "openai";
 import { generateSystemPrompt } from "./system-prompt";
 import { VoiceGenerator } from "./voice-generator";
 import { concatenateAudio } from "./audio-utils";
-
-// Initialize and clean the OpenAI API key from environment variables.
-// Ensure that the key does not include the "OPENAI_API_KEY=" prefix.
-let rawApiKey = process.env.OPENAI_API_KEY?.trim();
-if (!rawApiKey) {
-  // Throw an error if the API key is missing.
-  throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY in your environment.');
-}
-
-// If the key is misconfigured with a prefix, remove it.
-if (rawApiKey.startsWith('OPENAI_API_KEY=')) {
-  rawApiKey = rawApiKey.split('=')[1];
-}
-
-// Initialize OpenAI client with the cleaned API key
-const openai = new OpenAI({
-  apiKey: rawApiKey, // Use the cleaned API key value
-});
+import { ElevenLabsVoiceProvider } from "@/lib/voice-providers";
+import { OpenAIProvider } from "@/lib/ai-providers";
+import { env } from "@/env.mjs";
 
 export async function POST(request: Request) {
   try {
@@ -44,31 +28,34 @@ export async function POST(request: Request) {
       difficulty,
     });
 
-    // Call OpenAI API
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Use the appropriate model
-      max_tokens: 1500,
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: `Create a conversation about ${topic} following the format specified.`,
-        },
-      ],
+    // Initialize AI provider
+    const aiProvider = new OpenAIProvider(env.OPENAI_API_KEY);
+
+    // Call OpenAI API with error handling
+    const content = await aiProvider.generateCompletion([
+      {
+        role: "system",
+        content: systemPrompt,
+      },
+      {
+        role: "user",
+        content: `Create a conversation about ${topic} following the format specified.`,
+      },
+    ]).catch((error) => {
+      // Log the specific error for debugging
+      console.error("OpenAI API Error:", error);
+      throw new Error(`OpenAI API error: ${error.message}`);
     });
 
-    // Initialize voice generator
-    const voiceGenerator = new VoiceGenerator();
-
-    // Parse the conversation and generate audio for each part
-    const content = response.choices[0].message.content;
     if (!content) {
       throw new Error("No content received from OpenAI");
     }
+
+    // Initialize voice generator with ElevenLabs provider
+    const voiceProvider = new ElevenLabsVoiceProvider(env.ELEVENLABS_API_KEY);
+    const voiceGenerator = new VoiceGenerator(voiceProvider);
+
+    // Generate audio segments
     const audioSegments = await voiceGenerator.generateAudioSegments(content);
 
     // Concatenate all audio segments into one buffer
