@@ -314,30 +314,7 @@ export function AppSidebar({
           </SidebarGroup>
         )}
 
-        {demos.map((demo) => (
-          <SidebarGroup key={demo.name}>
-            <SidebarGroupLabel>{demo.name}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {demo.items.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === `/${item.slug}`}
-                    >
-                      <a href={`/${item.slug}`}>
-                        {item.icon && (
-                          <item.icon className="!h-[18px] !w-[18px] stroke-[2]" />
-                        )}
-                        {item.name}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        
       </SidebarContent>
       <SidebarFooter className="p-4">
         <SignedOut>
