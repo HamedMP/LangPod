@@ -1,12 +1,18 @@
 "use client";
 
-import { useConversation } from "@11labs/react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
-import { env } from "@/env.mjs";
+import { Conversation as ConversationClient } from "@11labs/client";
+
+// Define our own Message type based on the docs
+interface Message {
+  content: string;
+  role: "user" | "assistant";
+  timestamp: number;
+}
 
 // More specific error types
 type ConversationError =
@@ -14,94 +20,124 @@ type ConversationError =
   | { type: "CONNECTION"; message: string }
   | { type: "GENERAL"; message: string };
 
-interface ConversationMessage {
-  content: string;
-  source: string;
+async function requestMicrophonePermission() {
+  try {
+    // First check if the browser supports getUserMedia
+    if (!navigator?.mediaDevices?.getUserMedia) {
+      throw new Error("Your browser doesn't support microphone access");
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Important: Stop the stream immediately after permission check
+    stream.getTracks().forEach((track) => track.stop());
+    return true;
+  } catch (error) {
+    if (error instanceof Error) {
+      // Handle specific permission errors
+      if (
+        (error as any).name === "NotAllowedError" ||
+        (error as any).name === "PermissionDeniedError"
+      ) {
+        throw new Error(
+          "Microphone access was denied. Please allow microphone access in your browser settings and try again."
+        );
+      } else if ((error as any).name === "NotFoundError") {
+        throw new Error(
+          "No microphone found. Please connect a microphone and try again."
+        );
+      }
+    }
+    throw error;
+  }
+}
+
+async function getSignedUrl(): Promise<string> {
+  const response = await fetch("/api/signed-url");
+  if (!response.ok) {
+    throw Error("Failed to get signed url");
+  }
+  const data = await response.json();
+  if (data.error) {
+    throw Error(data.error);
+  }
+  return data.signedUrl;
 }
 
 export function Conversation() {
   const [volume, setVolume] = useState(0.5);
-  const [error, setError] = useState<ConversationError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ConversationError | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversation, setConversation] = useState<ConversationClient | null>(
+    null
+  );
+  const [isConnected, setIsConnected] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const conversation = useConversation({
-    onConnect: () => {
-      console.log("[Conversation] Connected");
-      setError(null);
-      setIsLoading(false);
-    },
-    onDisconnect: () => {
-      console.log("[Conversation] Disconnected");
-      setIsLoading(false);
-      setError({
-        type: "CONNECTION",
-        message: "Connection lost. Please try reconnecting.",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("[Conversation] Error:", error);
-      setError({ type: "GENERAL", message: error.toString() });
-      setIsLoading(false);
-    },
-    onMessage: (message: ConversationMessage) => {
-      console.log("[Conversation] Message:", message);
-    },
-  });
-
-  const startConversation = useCallback(async () => {
-    console.log("[Conversation] Starting...");
+  async function startConversation() {
     setError(null);
     setIsLoading(true);
 
     try {
-      // Request microphone permission
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        throw new Error("Microphone permission denied");
+      }
 
-      // Start the conversation
-      await conversation.startSession({
-        agentId: env.NEXT_PUBLIC_AGENT_ID,
+      const signedUrl = await getSignedUrl();
+
+      const conv = await ConversationClient.startSession({
+        signedUrl: signedUrl,
+        onConnect: () => {
+          setIsConnected(true);
+          setIsSpeaking(true);
+          setError(null);
+        },
+        onDisconnect: () => {
+          setIsConnected(false);
+          setIsSpeaking(false);
+        },
+        onError: (error) => {
+          setError({ type: "GENERAL", message: error.toString() });
+          console.error("Conversation error:", error);
+        },
+        onModeChange: ({ mode }) => {
+          setIsSpeaking(mode === "speaking");
+        },
       });
 
-      // Set initial volume if needed
+      setConversation(conv);
+
+      // Set initial volume
       if (volume !== 0.5) {
-        await conversation.setVolume({ volume });
+        await conv.setVolume(volume);
       }
     } catch (error) {
-      console.error("[Conversation] Start error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
 
       setError({
         type:
-          error instanceof Error &&
-          (error.name === "NotAllowedError" ||
-            error.name === "PermissionDeniedError")
+          error instanceof Error && error.name === "NotAllowedError"
             ? "MICROPHONE_ACCESS"
             : "CONNECTION",
         message: errorMessage,
       });
+    } finally {
       setIsLoading(false);
     }
-  }, [conversation, volume]);
+  }
 
-  const endConversation = useCallback(async () => {
-    console.log("[Conversation] Ending...");
+  async function handleVolumeChange(value: number) {
+    setVolume(value);
+    await conversation?.setVolume(value);
+  }
+
+  async function endConversation() {
+    if (!conversation) return;
     await conversation.endSession();
-  }, [conversation]);
-
-  const handleVolumeChange = useCallback(
-    async (value: number) => {
-      setVolume(value);
-      if (conversation.status === "connected") {
-        try {
-          await conversation.setVolume({ volume: value });
-        } catch (error) {
-          console.error("[Conversation] Volume error:", error);
-        }
-      }
-    },
-    [conversation]
-  );
+    setConversation(null);
+  }
 
   return (
     <div className="flex justify-center items-center gap-x-4">
@@ -110,8 +146,8 @@ export function Conversation() {
           <CardTitle className="text-center">
             {isLoading
               ? "Connecting..."
-              : conversation.status === "connected"
-                ? conversation.isSpeaking
+              : isConnected
+                ? isSpeaking
                   ? "Agent is speaking"
                   : "Agent is listening"
                 : "Disconnected"}
@@ -153,17 +189,13 @@ export function Conversation() {
             <div
               className={cn(
                 "orb my-16 mx-12",
-                conversation.isSpeaking
-                  ? "animate-orb"
-                  : conversation.status === "connected" && "animate-orb-slow",
-                conversation.status === "connected"
-                  ? "orb-active"
-                  : "orb-inactive"
+                isSpeaking ? "animate-orb" : isConnected && "animate-orb-slow",
+                isConnected ? "orb-active" : "orb-inactive"
               )}
             />
 
             {/* Volume control */}
-            {conversation.status === "connected" && (
+            {isConnected && (
               <div className="px-4 py-2">
                 <label className="text-sm text-gray-500">Volume</label>
                 <Slider
@@ -180,7 +212,7 @@ export function Conversation() {
               variant="outline"
               className="rounded-full"
               size="lg"
-              disabled={conversation.status === "connected" || isLoading}
+              disabled={isConnected || isLoading}
               onClick={startConversation}
             >
               {isLoading ? "Connecting..." : "Start conversation"}
@@ -190,7 +222,7 @@ export function Conversation() {
               variant="outline"
               className="rounded-full"
               size="lg"
-              disabled={conversation.status !== "connected"}
+              disabled={!isConnected}
               onClick={endConversation}
             >
               End conversation

@@ -5,25 +5,25 @@
 - [User](#User)
 - [Language](#Language)
 - [Course](#Course)
+- [UserCourse](#UserCourse)
 - [Lesson](#Lesson)
-- [LessonCatalog](#LessonCatalog)
 
 ## User
+
 ```mermaid
 erDiagram
 "User" {
-  String id PK 
-  String clerkId  
-  DateTime createdAt  
-  String name  
-  String email  
+  String id PK
+  String clerkId
+  DateTime createdAt
+  String name
+  String email
 }
 
-"User" ||--o{ "Course": studentCourses
-"User" ||--o{ "Course": tutorCourses
-"User" ||--o{ "Lesson": lessons
+"User" ||--o{ "UserCourse": userCourses
 
 ```
+
 - CREATE
 
 - READ
@@ -33,21 +33,21 @@ erDiagram
 - DELETE
 
 ## Language
+
 ```mermaid
 erDiagram
 "Language" {
-  String id PK 
-  String name  
-  String code  
-  DateTime createdAt  
+  String id PK
+  String name
+  String code
+  DateTime createdAt
 }
 
 "Language" ||--o{ "Course": nativeCourses
 "Language" ||--o{ "Course": targetCourses
-"Language" ||--o{ "LessonCatalog": nativeCatalog
-"Language" ||--o{ "LessonCatalog": targetCatalog
 
 ```
+
 - CREATE
 
 - READ
@@ -57,26 +57,25 @@ erDiagram
 - DELETE
 
 ## Course
+
 ```mermaid
 erDiagram
 "Course" {
-  String id PK 
-  String nativeLanguageId FK 
-  String targetLanguageId FK 
+  String id PK
+  String nativeLanguageId FK
+  String targetLanguageId FK
   String outcome  "?"
-  String level  
-  DateTime createdAt  
-  String studentId FK 
-  String tutorId FK "?"
+  String level
+  DateTime createdAt
 }
 
 "Course" }o--|| "Language": nativeLanguage
 "Course" }o--|| "Language": targetLanguage
-"Course" }o--|| "User": student
-"Course" }o--|| "User": tutor
+"Course" ||--o{ "UserCourse": userCourses
 "Course" ||--o{ "Lesson": lessons
 
 ```
+
 - CREATE
   - ✅ auth() != null
 - READ
@@ -85,26 +84,53 @@ erDiagram
   - ✅ auth() != null
 - DELETE
   - ✅ auth() != null
+
+## UserCourse
+
+```mermaid
+erDiagram
+"UserCourse" {
+  String id PK
+  String userId FK
+  String courseId FK
+  UserCourseRole role
+  DateTime createdAt
+}
+
+"UserCourse" }o--|| "User": user
+"UserCourse" }o--|| "Course": course
+
+```
+
+- CREATE
+  - ✅ auth() != null
+- READ
+  - ✅ auth() != null
+- UPDATE
+  - ✅ auth() != null
+- DELETE
+  - ✅ auth() != null
+
 ## Lesson
+
 ```mermaid
 erDiagram
 "Lesson" {
-  String id PK 
-  String title  
-  String type  
-  String scenarioContext  
+  String id PK
+  String title
+  String type
+  String scenarioContext
   Json lessonJson  "?"
   String audioUrl  "?"
-  DateTime createdAt  
-  String courseId FK 
-  String userId FK 
-  ProgressStatus progress  
+  DateTime createdAt
+  String courseId FK
+  ProgressStatus progress
 }
 
 "Lesson" }o--|| "Course": course
-"Lesson" }o--|| "User": user
 
 ```
+
 - CREATE
   - ✅ auth() != null
 - READ
@@ -113,25 +139,3 @@ erDiagram
   - ✅ auth() != null
 - DELETE
   - ✅ auth() != null
-## LessonCatalog
-```mermaid
-erDiagram
-"LessonCatalog" {
-  String id PK 
-  String nativeLanguageId FK 
-  String targetLanguageId FK 
-  Json content  
-  DateTime createdAt  
-}
-
-"LessonCatalog" }o--|| "Language": nativeLanguage
-"LessonCatalog" }o--|| "Language": targetLanguage
-
-```
-- CREATE
-
-- READ
-  - ✅ true
-- UPDATE
-
-- DELETE

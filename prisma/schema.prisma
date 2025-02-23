@@ -12,6 +12,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum UserCourseRole {
+  STUDENT
+  TUTOR
+}
+
 enum ProgressStatus {
   COMPLETED
   IN_PROGRESS
@@ -19,41 +24,46 @@ enum ProgressStatus {
 }
 
 model User {
-  id             String   @id() @default(uuid())
-  clerkId        String   @unique()
-  createdAt      DateTime @default(now())
-  name           String
-  email          String
-  studentCourses Course[] @relation("StudentCourses")
-  tutorCourses   Course[] @relation("TutorCourses")
-  lessons        Lesson[]
+  id          String       @id() @default(uuid())
+  clerkId     String       @unique()
+  createdAt   DateTime     @default(now())
+  name        String
+  email       String
+  userCourses UserCourse[]
 }
 
 model Language {
-  id            String          @id() @default(uuid())
+  id            String   @id() @default(uuid())
   name          String
-  code          String          @unique()
-  createdAt     DateTime        @default(now())
-  nativeCourses Course[]        @relation("NativeLanguage")
-  targetCourses Course[]        @relation("TargetLanguage")
-  nativeCatalog LessonCatalog[] @relation("CatalogNativeLanguage")
-  targetCatalog LessonCatalog[] @relation("CatalogTargetLanguage")
+  code          String   @unique()
+  createdAt     DateTime @default(now())
+  nativeCourses Course[] @relation("NativeLanguage")
+  targetCourses Course[] @relation("TargetLanguage")
 }
 
 model Course {
-  id               String   @id() @default(uuid())
-  nativeLanguage   Language @relation("NativeLanguage", fields: [nativeLanguageId], references: [id])
+  id               String       @id() @default(uuid())
+  nativeLanguage   Language     @relation("NativeLanguage", fields: [nativeLanguageId], references: [id])
   nativeLanguageId String
-  targetLanguage   Language @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
+  targetLanguage   Language     @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
   targetLanguageId String
   outcome          String?
   level            String
-  createdAt        DateTime @default(now())
-  student          User     @relation("StudentCourses", fields: [studentId], references: [id])
-  studentId        String
-  tutor            User?    @relation("TutorCourses", fields: [tutorId], references: [id])
-  tutorId          String?
+  createdAt        DateTime     @default(now())
+  userCourses      UserCourse[]
   lessons          Lesson[]
+}
+
+model UserCourse {
+  id        String         @id() @default(uuid())
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String
+  course    Course         @relation(fields: [courseId], references: [id])
+  courseId  String
+  role      UserCourseRole @default(STUDENT)
+  createdAt DateTime       @default(now())
+
+  @@unique([userId, courseId, role])
 }
 
 model Lesson {
@@ -66,17 +76,5 @@ model Lesson {
   createdAt       DateTime       @default(now())
   course          Course         @relation(fields: [courseId], references: [id])
   courseId        String
-  user            User           @relation(fields: [userId], references: [id])
-  userId          String
   progress        ProgressStatus
-}
-
-model LessonCatalog {
-  id               String   @id() @default(uuid())
-  nativeLanguage   Language @relation("CatalogNativeLanguage", fields: [nativeLanguageId], references: [id])
-  nativeLanguageId String
-  targetLanguage   Language @relation("CatalogTargetLanguage", fields: [targetLanguageId], references: [id])
-  targetLanguageId String
-  content          Json
-  createdAt        DateTime @default(now())
 }

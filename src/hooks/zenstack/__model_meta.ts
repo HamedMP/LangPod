@@ -27,21 +27,9 @@ const metadata = {
                 }, email: {
                     name: "email",
                     type: "String",
-                }, studentCourses: {
-                    name: "studentCourses",
-                    type: "Course",
-                    isDataModel: true,
-                    isArray: true,
-                    backLink: 'student',
-                }, tutorCourses: {
-                    name: "tutorCourses",
-                    type: "Course",
-                    isDataModel: true,
-                    isArray: true,
-                    backLink: 'tutor',
-                }, lessons: {
-                    name: "lessons",
-                    type: "Lesson",
+                }, userCourses: {
+                    name: "userCourses",
+                    type: "UserCourse",
                     isDataModel: true,
                     isArray: true,
                     backLink: 'user',
@@ -85,18 +73,6 @@ const metadata = {
                 }, targetCourses: {
                     name: "targetCourses",
                     type: "Course",
-                    isDataModel: true,
-                    isArray: true,
-                    backLink: 'targetLanguage',
-                }, nativeCatalog: {
-                    name: "nativeCatalog",
-                    type: "LessonCatalog",
-                    isDataModel: true,
-                    isArray: true,
-                    backLink: 'nativeLanguage',
-                }, targetCatalog: {
-                    name: "targetCatalog",
-                    type: "LessonCatalog",
                     isDataModel: true,
                     isArray: true,
                     backLink: 'targetLanguage',
@@ -156,32 +132,12 @@ const metadata = {
                     name: "createdAt",
                     type: "DateTime",
                     attributes: [{ "name": "@default", "args": [] }],
-                }, student: {
-                    name: "student",
-                    type: "User",
+                }, userCourses: {
+                    name: "userCourses",
+                    type: "UserCourse",
                     isDataModel: true,
-                    backLink: 'studentCourses',
-                    isRelationOwner: true,
-                    foreignKeyMapping: { "id": "studentId" },
-                }, studentId: {
-                    name: "studentId",
-                    type: "String",
-                    isForeignKey: true,
-                    relationField: 'student',
-                }, tutor: {
-                    name: "tutor",
-                    type: "User",
-                    isDataModel: true,
-                    isOptional: true,
-                    backLink: 'tutorCourses',
-                    isRelationOwner: true,
-                    foreignKeyMapping: { "id": "tutorId" },
-                }, tutorId: {
-                    name: "tutorId",
-                    type: "String",
-                    isOptional: true,
-                    isForeignKey: true,
-                    relationField: 'tutor',
+                    isArray: true,
+                    backLink: 'course',
                 }, lessons: {
                     name: "lessons",
                     type: "Lesson",
@@ -194,6 +150,59 @@ const metadata = {
                 id: {
                     name: "id",
                     fields: ["id"]
+                },
+            }
+            ,
+        }
+        ,
+        userCourse: {
+            name: 'UserCourse', fields: {
+                id: {
+                    name: "id",
+                    type: "String",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, user: {
+                    name: "user",
+                    type: "User",
+                    isDataModel: true,
+                    backLink: 'userCourses',
+                    isRelationOwner: true,
+                    foreignKeyMapping: { "id": "userId" },
+                }, userId: {
+                    name: "userId",
+                    type: "String",
+                    isForeignKey: true,
+                    relationField: 'user',
+                }, course: {
+                    name: "course",
+                    type: "Course",
+                    isDataModel: true,
+                    backLink: 'userCourses',
+                    isRelationOwner: true,
+                    foreignKeyMapping: { "id": "courseId" },
+                }, courseId: {
+                    name: "courseId",
+                    type: "String",
+                    isForeignKey: true,
+                    relationField: 'course',
+                }, role: {
+                    name: "role",
+                    type: "UserCourseRole",
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, createdAt: {
+                    name: "createdAt",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [] }],
+                },
+            }
+            , uniqueConstraints: {
+                id: {
+                    name: "id",
+                    fields: ["id"]
+                }, userId_courseId_role: {
+                    name: "userId_courseId_role",
+                    fields: ["userId", "courseId", "role"]
                 },
             }
             ,
@@ -239,70 +248,9 @@ const metadata = {
                     type: "String",
                     isForeignKey: true,
                     relationField: 'course',
-                }, user: {
-                    name: "user",
-                    type: "User",
-                    isDataModel: true,
-                    backLink: 'lessons',
-                    isRelationOwner: true,
-                    foreignKeyMapping: { "id": "userId" },
-                }, userId: {
-                    name: "userId",
-                    type: "String",
-                    isForeignKey: true,
-                    relationField: 'user',
                 }, progress: {
                     name: "progress",
                     type: "ProgressStatus",
-                },
-            }
-            , uniqueConstraints: {
-                id: {
-                    name: "id",
-                    fields: ["id"]
-                },
-            }
-            ,
-        }
-        ,
-        lessonCatalog: {
-            name: 'LessonCatalog', fields: {
-                id: {
-                    name: "id",
-                    type: "String",
-                    isId: true,
-                    attributes: [{ "name": "@default", "args": [] }],
-                }, nativeLanguage: {
-                    name: "nativeLanguage",
-                    type: "Language",
-                    isDataModel: true,
-                    backLink: 'nativeCatalog',
-                    isRelationOwner: true,
-                    foreignKeyMapping: { "id": "nativeLanguageId" },
-                }, nativeLanguageId: {
-                    name: "nativeLanguageId",
-                    type: "String",
-                    isForeignKey: true,
-                    relationField: 'nativeLanguage',
-                }, targetLanguage: {
-                    name: "targetLanguage",
-                    type: "Language",
-                    isDataModel: true,
-                    backLink: 'targetCatalog',
-                    isRelationOwner: true,
-                    foreignKeyMapping: { "id": "targetLanguageId" },
-                }, targetLanguageId: {
-                    name: "targetLanguageId",
-                    type: "String",
-                    isForeignKey: true,
-                    relationField: 'targetLanguage',
-                }, content: {
-                    name: "content",
-                    type: "Json",
-                }, createdAt: {
-                    name: "createdAt",
-                    type: "DateTime",
-                    attributes: [{ "name": "@default", "args": [] }],
                 },
             }
             , uniqueConstraints: {

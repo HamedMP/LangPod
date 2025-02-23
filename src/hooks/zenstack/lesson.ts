@@ -329,7 +329,7 @@ export function useSuspenseCountLesson<TArgs extends Prisma.LessonCountArgs, TQu
 }
 import type { ProgressStatus } from '@prisma/client';
 
-export function useCheckLesson<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { id?: string; title?: string; type?: string; scenarioContext?: string; audioUrl?: string; courseId?: string; userId?: string; progress?: ProgressStatus }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
+export function useCheckLesson<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { id?: string; title?: string; type?: string; scenarioContext?: string; audioUrl?: string; courseId?: string; progress?: ProgressStatus }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
     const { endpoint, fetch } = getHooksContext();
     return useModelQuery<boolean, boolean, TError>('Lesson', `${endpoint}/lesson/check`, args, options, fetch);
 }

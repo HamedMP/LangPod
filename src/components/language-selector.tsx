@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { useFindManyLanguage, useCreateCourse } from "@/hooks/zenstack";
+import {
+  useFindManyLanguage,
+  useFindManyUserCourse,
+  useCreateUserCourse,
+  useFindManyCourse,
+} from "@/hooks/zenstack";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Twemoji from "@/components/common/Twemoji";
@@ -30,7 +35,7 @@ export function LanguageSelector() {
   const [level, setLevel] = useState("");
 
   const { data: languages, isLoading } = useFindManyLanguage();
-  const createCourse = useCreateCourse();
+  const createUserCourse = useCreateUserCourse();
 
   const selectedTargetLanguage = languages?.find(
     (l) => l.id === targetLanguage
@@ -40,8 +45,37 @@ export function LanguageSelector() {
   );
   const selectedLevel = levels.find((l) => l.code === level);
 
-  const handleLanguageSelect = async (langId: string) => {
-    setNativeLanguage(langId);
+  // Get the language codes for constructing the course ID
+  const targetLangCode = selectedTargetLanguage?.code;
+  const nativeLangCode = languages?.find((l) => l.id === nativeLanguage)?.code;
+
+  // Update the courses query to use the correct ID format
+  const { data: courses } = useFindManyCourse({
+    where: {
+      id:
+        nativeLangCode && targetLangCode && level
+          ? `${nativeLangCode}-${targetLangCode}-${level}`.toLowerCase()
+          : undefined,
+    },
+  });
+
+  // Check if user already has this course
+  const { data: existingUserCourses } = useFindManyUserCourse({
+    where: {
+      user: {
+        clerkId: userId ?? "",
+      },
+      course: {
+        id:
+          nativeLangCode && targetLangCode && level
+            ? `${nativeLangCode}-${targetLangCode}-${level}`.toLowerCase()
+            : undefined,
+      },
+    },
+  });
+
+  const handleLanguageSelect = async (nativeLangId: string) => {
+    setNativeLanguage(nativeLangId);
 
     try {
       if (!userId) {
@@ -49,36 +83,50 @@ export function LanguageSelector() {
         return;
       }
 
-      const result = await createCourse.mutateAsync({
+      if (!targetLanguage || !level) {
+        toast.error("Please select target language and level first");
+        return;
+      }
+
+      const nativeLangCode = languages?.find(
+        (l) => l.id === nativeLangId
+      )?.code;
+      const targetLangCode = selectedTargetLanguage?.code;
+
+      if (!nativeLangCode || !targetLangCode) {
+        toast.error("Invalid language selection");
+        return;
+      }
+
+      const courseId =
+        `${nativeLangCode}-${targetLangCode}-${level}`.toLowerCase();
+
+      // Create the user-course relationship
+      const userCourse = await createUserCourse.mutateAsync({
         data: {
-          student: {
+          user: {
             connect: {
               clerkId: userId,
             },
           },
-          nativeLanguage: {
+          course: {
             connect: {
-              id: langId,
+              id: courseId,
             },
           },
-          targetLanguage: {
-            connect: {
-              id: targetLanguage,
-            },
-          },
-          level,
+          role: "STUDENT",
         },
       });
 
-      if (!result) {
-        throw new Error("Failed to create course");
+      if (!userCourse) {
+        throw new Error("Failed to create user course relationship");
       }
 
-      toast.success("Course created successfully!");
-      router.push(`/course/${result.id}`);
+      toast.success("Course added successfully!");
+      router.push(`/course/${userCourse.id}`);
     } catch (error) {
       console.error("Course creation error:", error);
-      toast.error("Failed to create course");
+      toast.error("Failed to add course");
     }
   };
 

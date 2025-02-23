@@ -10,6 +10,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { useEffect } from "react";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 import {
   Sidebar,
@@ -38,60 +39,107 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ChevronDown, Plus, ArrowRight, HelpCircle } from "lucide-react";
-import { Lesson } from "@prisma/client";
-import { useFindManyUser } from "@/hooks/zenstack";
+import { ChevronDown, Plus, HelpCircle } from "lucide-react";
+import { Course, Language, Lesson, UserCourse } from "@prisma/client";
+import { useFindManyUserCourse } from "@/hooks/zenstack";
 import { useAuth } from "@clerk/nextjs";
 import { getCountryCode } from "@/lib/utils";
 import getUnicodeFlagIcon from "country-flag-icons/unicode";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  courseId?: string;
+  userCourseId?: string;
   courseName?: string;
   lessons?: Lesson[];
 }
 
+interface UserCourseWithRelations extends UserCourse {
+  course: Course & {
+    nativeLanguage: Language;
+    targetLanguage: Language;
+    lessons: Lesson[];
+  };
+}
+
 export function AppSidebar({
-  courseId,
-  courseName,
-  lessons,
   ...props
-}: AppSidebarProps) {
+}: Omit<AppSidebarProps, "userCourseId" | "courseName" | "lessons">) {
   const pathname = usePathname();
   const router = useRouter();
   const { userId } = useAuth();
-  const { data: user } = useFindManyUser({
+  const { userCourseId, courseName } = useSidebar();
+
+  const { data: userCourses } = useFindManyUserCourse<{
+    include: {
+      course: {
+        include: {
+          nativeLanguage: true;
+          targetLanguage: true;
+          lessons: {
+            orderBy: {
+              createdAt: "asc";
+            };
+          };
+        };
+      };
+    };
     where: {
-      clerkId: userId ?? "",
+      user: {
+        clerkId: string;
+      };
+      role: "STUDENT";
+    };
+  }>({
+    where: {
+      user: {
+        clerkId: userId ?? "",
+      },
+      role: "STUDENT",
     },
-    select: {
-      studentCourses: {
+    include: {
+      course: {
         include: {
           nativeLanguage: true,
           targetLanguage: true,
+          lessons: {
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
         },
       },
     },
   });
 
-  const currentCourse = user?.[0]?.studentCourses?.find(
-    (course) => course.id === courseId
+  const typedUserCourses = userCourses as unknown as UserCourseWithRelations[];
+  const currentUserCourse = typedUserCourses?.find(
+    (uc) => uc.id === userCourseId
   );
+
+  console.log("Sidebar Data:", {
+    userCourseId,
+    currentUserCourse,
+    lessons: currentUserCourse?.course?.lessons,
+    allUserCourses: typedUserCourses?.map((uc) => ({
+      id: uc.id,
+      courseId: uc.courseId,
+      lessonCount: uc.course.lessons?.length,
+    })),
+  });
 
   // Group courses by native language
   const coursesByNativeLanguage = React.useMemo(() => {
-    if (!user?.[0]?.studentCourses) return {};
-    return user[0].studentCourses.reduce(
-      (acc, course) => {
-        const key = course.nativeLanguage.code;
+    if (!typedUserCourses) return {};
+    return typedUserCourses.reduce(
+      (acc, userCourse) => {
+        const key = userCourse.course.nativeLanguage.code;
         if (!acc[key]) {
           acc[key] = {
-            name: course.nativeLanguage.name,
-            code: course.nativeLanguage.code,
-            courses: [],
+            name: userCourse.course.nativeLanguage.name,
+            code: userCourse.course.nativeLanguage.code,
+            userCourses: [],
           };
         }
-        acc[key].courses.push(course);
+        acc[key].userCourses.push(userCourse);
         return acc;
       },
       {} as Record<
@@ -99,17 +147,11 @@ export function AppSidebar({
         {
           name: string;
           code: string;
-          courses: (typeof user)[0]["studentCourses"];
+          userCourses: UserCourseWithRelations[];
         }
       >
     );
-  }, [user]);
-
-  useEffect(() => {
-    if (courseId) {
-      localStorage.setItem("lastActiveCourse", courseId);
-    }
-  }, [courseId]);
+  }, [typedUserCourses]);
 
   return (
     <Sidebar {...props} className="bg-background">
@@ -131,22 +173,26 @@ export function AppSidebar({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger className="w-full bg-sidebar-accent border-none p-3 rounded-md">
-                            {currentCourse ? (
+                            {currentUserCourse ? (
                               <div className="flex items-center justify-between w-full group">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">
                                     {getUnicodeFlagIcon(
                                       getCountryCode(
-                                        currentCourse.targetLanguage.code
+                                        currentUserCourse.course.targetLanguage
+                                          .code
                                       )
                                     )}
                                   </span>
                                   <div className="flex flex-col items-start">
                                     <span className="font-semibold">
-                                      {currentCourse.targetLanguage.name}
+                                      {
+                                        currentUserCourse.course.targetLanguage
+                                          .name
+                                      }
                                     </span>
                                     <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                      Level {currentCourse.level}
+                                      Level {currentUserCourse.course.level}
                                     </span>
                                   </div>
                                 </div>
@@ -184,11 +230,11 @@ export function AppSidebar({
                             </span>
                             <span>Native {group.name} Speaker</span>
                           </DropdownMenuLabel>
-                          {group.courses.map((course) => (
+                          {group.userCourses.map((userCourse) => (
                             <DropdownMenuItem
-                              key={course.id}
+                              key={userCourse.id}
                               onClick={() =>
-                                router.push(`/course/${course.id}`)
+                                router.push(`/course/${userCourse.id}`)
                               }
                               className="px-3"
                             >
@@ -196,16 +242,18 @@ export function AppSidebar({
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">
                                     {getUnicodeFlagIcon(
-                                      getCountryCode(course.targetLanguage.code)
+                                      getCountryCode(
+                                        userCourse.course.targetLanguage.code
+                                      )
                                     )}
                                   </span>
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="font-semibold text-base">
-                                    {course.targetLanguage.name}
+                                    {userCourse.course.targetLanguage.name}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
-                                    Level {course.level}
+                                    Level {userCourse.course.level}
                                   </span>
                                 </div>
                               </div>
@@ -214,6 +262,15 @@ export function AppSidebar({
                           <DropdownMenuSeparator className="my-2" />
                         </React.Fragment>
                       ))}
+                      <DropdownMenuItem
+                        className="px-3"
+                        onClick={() => router.push("/?view=all")}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>View All Courses</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="my-2" />
                       <Link href="/?new=true" className="block">
                         <DropdownMenuItem className="px-3">
                           <div className="flex items-center gap-2">
@@ -230,20 +287,23 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {courseId && lessons && (
+        {userCourseId && currentUserCourse && (
           <SidebarGroup>
             <SidebarGroupLabel>Lessons</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {lessons.map((lesson) => (
+                {currentUserCourse.course.lessons.map((lesson) => (
                   <SidebarMenuItem key={lesson.id}>
                     <SidebarMenuButton
                       asChild
                       isActive={
-                        pathname === `/course/${courseId}/lesson/${lesson.id}`
+                        pathname ===
+                        `/course/${userCourseId}/lesson/${lesson.id}`
                       }
                     >
-                      <Link href={`/course/${courseId}/lesson/${lesson.id}`}>
+                      <Link
+                        href={`/course/${userCourseId}/lesson/${lesson.id}`}
+                      >
                         {lesson.title}
                       </Link>
                     </SidebarMenuButton>

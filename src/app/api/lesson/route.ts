@@ -17,21 +17,18 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { 
-      topic, 
-      language, 
-      nativeLanguage, 
-      difficulty,
-      voiceMap
-    } = body;
+    const { topic, language, nativeLanguage, difficulty, voiceMap } = body;
 
     // Validate required fields
     if (!topic || !language || !nativeLanguage || !difficulty) {
-      return new Response(JSON.stringify({ 
-        error: "Missing required fields" 
-      }), { 
-        status: 400 
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Missing required fields",
+        }),
+        {
+          status: 400,
+        }
+      );
     }
 
     // Initialize AI provider
@@ -46,20 +43,22 @@ export async function POST(request: Request) {
     });
 
     // First LLM call: Generate the conversation content.
-    let content = await aiProvider.generateCompletion([
-      {
-        role: "system",
-        content: prompt,
-      },
-      {
-        role: "user",
-        content: `Create a conversation about ${topic} following the format specified.`,
-      },
-    ]).catch((error) => {
-      // Log the specific error for debugging
-      console.error("Anthropic API Error:", error);
-      throw new Error(`Anthropic API error: ${error.message}`);
-    });
+    let content = await aiProvider
+      .generateCompletion([
+        {
+          role: "system",
+          content: prompt,
+        },
+        {
+          role: "user",
+          content: `Create a conversation about ${topic} following the format specified.`,
+        },
+      ])
+      .catch((error) => {
+        // Log the specific error for debugging
+        console.error("Anthropic API Error:", error);
+        throw new Error(`Anthropic API error: ${error.message}`);
+      });
 
     if (!content) {
       throw new Error("No content received from Anthropic");
@@ -92,14 +91,15 @@ Return them as a JSON object with keys "first", "second", "third".`;
       // Update the translation call to use simpler messages format
       const translationResponse = await aiProvider
         .generateCompletion([
-          { 
-            role: "system", 
-            content: "You are a translation assistant. Respond with valid JSON only." 
+          {
+            role: "system",
+            content:
+              "You are a translation assistant. Respond with valid JSON only.",
           },
-          { 
-            role: "user", 
-            content: translationPrompt 
-          }
+          {
+            role: "user",
+            content: translationPrompt,
+          },
         ])
         .catch((error) => {
           console.error("Translation LLM Error:", error);
@@ -113,7 +113,10 @@ Return them as a JSON object with keys "first", "second", "third".`;
       try {
         translations = JSON.parse(translationResponse || "");
       } catch (e) {
-        console.error("Error parsing translation response, using default labels", e);
+        console.error(
+          "Error parsing translation response, using default labels",
+          e
+        );
         translations = {
           first: "Dialogue, first time",
           second: "Dialogue, second time",
@@ -139,39 +142,45 @@ Return them as a JSON object with keys "first", "second", "third".`;
 
     // Initialize voice generator with ElevenLabs provider and speech settings
     const voiceProvider = new ElevenLabsVoiceProvider({
-      apiKey: env.ELEVENLABS_API_KEY
+      apiKey: env.ELEVENLABS_API_KEY,
     });
     const voiceGenerator = new VoiceGenerator(
-      voiceProvider, 
+      voiceProvider,
       speechSettings,
       voiceMap
     );
 
     // Generate audio segments for the final content.
-    const audioSegments = await voiceGenerator.generateAudioSegments(finalContent);
+    const audioSegments =
+      await voiceGenerator.generateAudioSegments(finalContent);
 
     // Concatenate all audio segments into one buffer
-    const combinedAudio = await concatenateAudio(audioSegments.map(segment => 
-      Buffer.from(segment.audio, "base64")
-    ));
+    const combinedAudio = await concatenateAudio(
+      audioSegments.map((segment) => Buffer.from(segment.audio, "base64"))
+    );
 
-    return new Response(JSON.stringify({
-      conversation: finalContent,
-      audio: combinedAudio.toString("base64"),
-      segments: audioSegments // .map(({ text, voice }) => ({ text, voice }))
-    }), {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    return new Response(
+      JSON.stringify({
+        conversation: finalContent,
+        audio: combinedAudio.toString("base64"),
+        segments: audioSegments, // .map(({ text, voice }) => ({ text, voice }))
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error generating lesson:", error);
-    return new Response(JSON.stringify({ 
-      error: "Failed to generate lesson",
-      details: error instanceof Error ? error.message : "Unknown error"
-    }), { 
-      status: 500 
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate lesson",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+      }
+    );
   }
 }
