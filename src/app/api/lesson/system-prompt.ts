@@ -11,9 +11,74 @@ export function generateSystemPrompt({
   difficulty: "beginner" | "intermediate" | "advanced" | "business/professional";
 }) {
 
+  // Define speech rate settings based on difficulty level
+  const speechSettings = (() => {
+    switch (difficulty) {
+      case "beginner":
+        return {
+          stability: 0.85,      // More stable, clearer speech
+          similarity: 0.85      // More consistent voice
+        };
+      case "intermediate":
+        return {
+          stability: 0.75,      // Moderate speech rate
+          similarity: 0.75      // Balanced voice consistency
+        };
+      case "advanced":
+        return {
+          stability: 0.65,      // Faster, more natural speech
+          similarity: 0.65      // More variation in voice
+        };
+      case "business/professional":
+        return {
+          stability: 0.70,      // Slightly faster than intermediate
+          similarity: 0.70      // Professional tone
+        };
+      default:
+        return {
+          stability: 0.85,      // Default to beginner settings
+          similarity: 0.85
+        };
+    }
+  })();
 
-  return `
+  // Define dynamic pause durations based on the difficulty level.
+  // For example, higher difficulty levels will have shorter pauses to help learners process information.
+  const mainPause = (() => {
+    switch (difficulty) {
+      case "beginner":
+        return "2";           // 2 seconds pause for beginner level
+      case "intermediate":
+        return "1.5";         // 1.5 seconds pause for intermediate level
+      case "advanced":
+        return "1";           // 1 second pause for advanced level
+      case "business/professional":
+        return "1.5";         // 1.5 seconds pause for business/professional level
+      default:
+        return "2";           // default fallback
+    }
+  })();
 
+  // Define a shorter pause duration used within dialogue exchanges.
+  // Typically set to about half of the main pause.
+  const dialoguePause = (() => {
+    switch (difficulty) {
+      case "beginner":
+        return "1";           // 1 second pause for beginner level
+      case "intermediate":
+        return "0.75";        // 0.75 seconds pause for intermediate level
+      case "advanced":
+        return "0.5";         // 0.5 second pause for advanced level
+      case "business/professional":
+        return "0.75";        // 0.75 seconds pause for business/professional level
+      default:
+        return "1";           // default fallback
+    }
+  })();
+
+  // Return both the prompt and settings
+  return {
+    prompt: `
 Generate a language learning conversation, designed for ${difficulty} level non-native speakers learning ${language}. The conversation topic should be ${topic}. 
 The name of the podcast should be LangPod.
 
@@ -28,23 +93,29 @@ Instructions:
    - Advanced: 8-10 exchanges
    - Business/Professional: 8-10 exchanges with specialized vocabulary
 
+Additionally, adjust the pause durations in the conversation to help the listener process the information:
+- Use a main pause of ${mainPause} seconds at key breaks.
+- Use a shorter pause of ${dialoguePause} seconds between dialogue lines.
+
 Example Structure:
 
 [Title in ${language}] / [Title in ${nativeLanguage}]
  
 <Tutor Voice="Voice1">Hello friends! This is LangPod coming to you from [location], and today we're going to listen to a conversation about ${topic}. Let's listen to it.</Tutor>
 
-<Pause Duration="1"/>
+<Pause Duration="${mainPause}"/>
 
 <Dialogue>
+  <Pause Duration="${mainPause}"/>
   <PersonA Voice="Voice1">[Line in ${language}]</PersonA>
-  <Pause Duration="0.5"/>
+  <Pause Duration="${dialoguePause}"/>
   <PersonB Voice="Voice2">[Response in ${language}]</PersonB>
-  <Pause Duration="0.5"/>
+  <Pause Duration="${dialoguePause}"/>
   [Continue with short dialogue in ${language}...]
+    <Pause Duration="${mainPause}"/>
 </Dialogue>
 
-<Pause Duration="1"/>
+<Pause Duration="${mainPause}"/>
 
 <Tutor Voice="Voice1">This was a useful conversation! What did you find hardest about understanding it?</Tutor>
 
@@ -82,18 +153,9 @@ Level Guidelines:
 - Intermediate: Past tense, future plans, opinions, descriptions, common idioms
 - Advanced: Hypotheticals, complex opinions, idioms, cultural nuances, professional scenarios
 - Business/Professional: Field-specific terminology, formal language, negotiations, presentations
-
-Sample Topics:
-- Ordering food at a restaurant
-- Asking for directions
-- Shopping for clothes
-- Making an appointment
-- Discussing hobbies
-- Talking about family
-- Weather and seasons
-- Travel plans
-- Work and office life
-- Housing and accommodation`;
+`,
+    speechSettings
+  };
 }
 
 

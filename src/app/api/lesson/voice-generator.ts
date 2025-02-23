@@ -16,7 +16,13 @@ export class VoiceGenerator {
     "Voice3": "N2lVS1w4EtoT3dr4eOWO",
   };
 
-  constructor(private voiceProvider: VoiceProvider) {}
+  constructor(
+    private voiceProvider: VoiceProvider,
+    private speechSettings?: {
+      stability: number;
+      similarity: number;
+    }
+  ) {}
 
   async generateAudioSegments(conversation: string): Promise<AudioSegment[]> {
     const segments: AudioSegment[] = [];
@@ -42,8 +48,12 @@ export class VoiceGenerator {
         console.log("Processing voice segment:", match[3]?.slice(0, 50));
         const [_, persona, voice, text] = match;
         try {
-          // Generate audio using the voice provider based on our voiceMap.
-          const audio = await this.voiceProvider.generateAudio(text, this.voiceMap[voice]);
+          // Pass speech settings to voice provider
+          const audio = await this.voiceProvider.generateAudio(
+            text, 
+            this.voiceMap[voice],
+            this.speechSettings
+          );
           segments.push({
             text,
             audio,

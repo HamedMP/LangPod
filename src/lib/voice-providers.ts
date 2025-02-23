@@ -1,6 +1,13 @@
 // Define an interface for voice providers
 export interface VoiceProvider {
-  generateAudio(text: string, voiceId: string): Promise<string>;
+  generateAudio(
+    text: string, 
+    voiceId: string,
+    settings?: {
+      stability: number;
+      similarity: number;
+    }
+  ): Promise<string>;
   generateSilence(duration: number): Promise<string>;
 }
 
@@ -15,8 +22,14 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
     this.apiKey = apiKey;
   }
 
-  async generateAudio(text: string, voiceId: string): Promise<string> {
-    // Existing generateAudio logic from VoiceGenerator
+  async generateAudio(
+    text: string, 
+    voiceId: string,
+    settings?: {
+      stability: number;
+      similarity: number;
+    }
+  ): Promise<string> {
     const cleanedText = text
       .trim()
       .replace(/[\u200B-\u200D\uFEFF]/g, "")
@@ -35,8 +48,8 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
           model_id: "eleven_multilingual_v2",
           output_format: "wav",
           voice_settings: {
-            stability: 0.75,
-            similarity_boost: 0.75,
+            stability: settings?.stability ?? 0.75,
+            similarity_boost: settings?.similarity ?? 0.75,
           }
         }),
       });

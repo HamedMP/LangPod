@@ -20,22 +20,22 @@ export async function POST(request: Request) {
       });
     }
 
+    // Initialize AI provider without passing the API key
+    const aiProvider = new OpenAIProvider();
+
     // Generate system prompt
-    const systemPrompt = generateSystemPrompt({
+    const { prompt, speechSettings } = generateSystemPrompt({
       language,
       nativeLanguage,
       topic,
       difficulty,
     });
 
-    // Initialize AI provider without passing the API key
-    const aiProvider = new OpenAIProvider();
-
     // First LLM call: Generate the conversation content.
     let content = await aiProvider.generateCompletion([
       {
         role: "system",
-        content: systemPrompt,
+        content: prompt,
       },
       {
         role: "user",
@@ -87,6 +87,8 @@ Return them as a JSON object with keys "first", "second", "third".`;
           return `{"first": "Dialogue, first time", "second": "Dialogue, second time", "third": "Dialogue, third time"}`;
         });
 
+      // Log the translation response for debugging
+
       // Parse the JSON response.
       let translations;
       try {
@@ -116,9 +118,9 @@ Return them as a JSON object with keys "first", "second", "third".`;
     }
     /////////////////////////////////
 
-    // Initialize voice generator with ElevenLabs provider
+    // Initialize voice generator with ElevenLabs provider and speech settings
     const voiceProvider = new ElevenLabsVoiceProvider(env.ELEVENLABS_API_KEY);
-    const voiceGenerator = new VoiceGenerator(voiceProvider);
+    const voiceGenerator = new VoiceGenerator(voiceProvider, speechSettings);
 
     // Generate audio segments for the final content.
     const audioSegments = await voiceGenerator.generateAudioSegments(finalContent);
@@ -131,7 +133,7 @@ Return them as a JSON object with keys "first", "second", "third".`;
     return new Response(JSON.stringify({
       conversation: finalContent,
       audio: combinedAudio.toString("base64"),
-      segments: audioSegments.map(({ text, voice }) => ({ text, voice }))
+      segments: audioSegments // .map(({ text, voice }) => ({ text, voice }))
     }), {
       headers: {
         "Content-Type": "application/json",
