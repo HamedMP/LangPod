@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-
+import {
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 import {
   Sidebar,
@@ -52,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       Select a course
                       <ChevronDown className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56"  >
+                    <DropdownMenuContent className="w-56">
                       <DropdownMenuItem>
                         <div className="flex items-center gap-2">
                           <Twemoji emoji="🇬🇧" />
@@ -109,11 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="p-4">
         <SignedOut>
-          <SignInButton mode="modal">
-            <button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              Sign In
-            </button>
-          </SignInButton>
+          <RedirectToSignIn redirectUrl={"/"} />
         </SignedOut>
         <SignedIn>
           <UserButton

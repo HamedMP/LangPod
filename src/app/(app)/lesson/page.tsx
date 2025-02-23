@@ -1,23 +1,9 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PodTab } from "./_tabs/PodTab";
-
-function ConversationTab() {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Conversation</h2>
-      <p>Conversation content goes here</p>
-    </div>
-  );
-}
-
-function CoachTab() {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Coach</h2>
-      <p>Coach content goes here</p>
-    </div>
-  );
-}
+import { ConversationTab } from "./_tabs/ConversationTab";
+import { CoachTab } from "./_tabs/CoachTab";
 
 export default function Page() {
   return (
