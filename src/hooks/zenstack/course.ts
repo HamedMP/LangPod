@@ -328,7 +328,7 @@ export function useSuspenseCountCourse<TArgs extends Prisma.CourseCountArgs, TQu
     return useSuspenseModelQuery<TQueryFnData, TData, TError>('Course', `${endpoint}/course/count`, args, options, fetch);
 }
 
-export function useCheckCourse<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { id?: string; nativeLanguageId?: string; targetLanguageId?: string; level?: string; studentId?: string; tutorId?: string }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
+export function useCheckCourse<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { id?: string; nativeLanguageId?: string; targetLanguageId?: string; outcome?: string; level?: string; studentId?: string; tutorId?: string }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
     const { endpoint, fetch } = getHooksContext();
     return useModelQuery<boolean, boolean, TError>('Course', `${endpoint}/course/check`, args, options, fetch);
 }

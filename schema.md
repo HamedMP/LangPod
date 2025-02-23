@@ -63,6 +63,7 @@ erDiagram
   String id PK 
   String nativeLanguageId FK 
   String targetLanguageId FK 
+  String outcome  
   String level  
   DateTime createdAt  
   String studentId FK 

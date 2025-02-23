@@ -145,6 +145,9 @@ const metadata = {
                     type: "String",
                     isForeignKey: true,
                     relationField: 'targetLanguage',
+                }, outcome: {
+                    name: "outcome",
+                    type: "String",
                 }, level: {
                     name: "level",
                     type: "String",
