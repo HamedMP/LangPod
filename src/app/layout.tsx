@@ -7,7 +7,7 @@ import { KeyProvider } from "@/components/key-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
-import { env } from "@/env.mjs";
+import { currentUser } from "@clerk/nextjs/server";
 
 import "./globals.css";
 import { PostHogProvider } from "@/providers/PosthogProvider";
@@ -60,15 +60,17 @@ export default async function RootLayout({
             >
               <KeyProvider apiKey={apiKey}>
                 {children}
-                <elevenlabs-convai
-                  agent-id={env.NEXT_PUBLIC_AGENT_ID}
-                  action-text="Need a language lesson?"
-                  start-call-text="Begin conversation"
-                  end-call-text="End call"
-                  expand-text="Open chat"
-                  listening-text="Listening..."
-                  speaking-text="Assistant speaking"
-                />
+                {
+                  <elevenlabs-convai
+                    agent-id="WrA4HFo5KuqGeHTpOV9x"
+                    action-text="Need a language lesson?"
+                    start-call-text="Begin conversation"
+                    end-call-text="End call"
+                    expand-text="Open chat"
+                    listening-text="Listening..."
+                    speaking-text="Assistant speaking"
+                  />
+                }
               </KeyProvider>
               <Toaster />
             </ThemeProvider>

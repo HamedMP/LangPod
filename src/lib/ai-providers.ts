@@ -1,4 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { PostHog } from "posthog-node";
+import { generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { env } from "@/env.mjs";
 
 export interface AIProvider {
@@ -9,6 +12,11 @@ export interface AIProvider {
 
 export class AnthropicProvider implements AIProvider {
   private client: Anthropic;
+  private model: string;
+
+  phClient = new PostHog("phc_LX0KpOpv5LIZDFKCpuiTi2BAnqUK72poTQ1fA0f2IOT", {
+    host: "https://eu.i.posthog.com",
+  });
 
   constructor() {
     const apiKey = env.ANTHROPIC_API_KEY;
@@ -16,6 +24,7 @@ export class AnthropicProvider implements AIProvider {
       throw new Error("Anthropic API key is required");
     }
     this.client = new Anthropic({ apiKey });
+    this.model = "claude-3-5-sonnet-20240620";
   }
 
   async generateCompletion(
@@ -31,26 +40,52 @@ export class AnthropicProvider implements AIProvider {
         .map((m) => m.content)
         .join("\n\n");
 
-      const defaultOptions: Anthropic.MessageCreateParams = {
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 1500,
-        temperature: 0.7,
+      const modelName = options.model || this.model;
+
+      // Track LLM request in PostHog
+      this.phClient.capture({
+        distinctId: "system",
+        event: "llm_request",
+        properties: {
+          provider: "anthropic",
+          model: modelName,
+          messageCount: messages.length,
+          hasSystemMessage: !!systemMessage,
+        },
+      });
+
+      const { text } = await generateText({
+        model: anthropic(modelName),
         system: systemMessage,
-        messages: [{ role: "user", content: userMessages }],
-        ...options,
-      };
+        prompt: userMessages,
+        maxTokens: options.max_tokens || 1500,
+        temperature: options.temperature || 0.7,
+      });
 
-      const response = await this.client.messages.create(defaultOptions);
+      // Track LLM response in PostHog
+      this.phClient.capture({
+        distinctId: "system",
+        event: "llm_response",
+        properties: {
+          provider: "anthropic",
+          model: modelName,
+          responseLength: text.length,
+        },
+      });
 
-      if ("content" in response && Array.isArray(response.content)) {
-        const block = response.content[0];
-        if (block?.type === "text") {
-          return block.text;
-        }
-      }
-
-      throw new Error("No text content in Anthropic response");
+      return text;
     } catch (error) {
+      // Track LLM error in PostHog
+      this.phClient.capture({
+        distinctId: "system",
+        event: "llm_error",
+        properties: {
+          provider: "anthropic",
+          model: options.model || this.model,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+      });
+
       console.error("Anthropic API Error:", error);
       throw error;
     }

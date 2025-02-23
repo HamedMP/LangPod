@@ -1,3 +1,4 @@
+"use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars, useTexture } from "@react-three/drei";
@@ -92,7 +93,7 @@ const Pin = ({
 
       <mesh position={[0, -0.1, 0]} rotation={[0, 0, 0]}>
         <sphereGeometry args={[0.02, 8, 8]} />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           color="#E3492D"
           roughness={0.3}
           metalness={0}

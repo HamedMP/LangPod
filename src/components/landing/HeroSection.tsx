@@ -1,6 +1,7 @@
-
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const HeroSection = () => {
   return (
@@ -9,24 +10,36 @@ const HeroSection = () => {
         <div className="text-center space-y-8 animate-in max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary animate-float">
             <Sparkles size={16} />
-            <span className="text-sm font-medium">AI-Powered Language Learning</span>
+            <span className="text-sm font-medium">
+              AI-Powered Language Learning
+            </span>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900">
             Master Any Language with
             <span className="text-primary"> AI Conversations</span>
           </h1>
-          
+
           <p className="text-xl text-gray-600">
-            Experience personalized, scenario-based lessons using advanced voice technology. Learn naturally through dynamic conversations.
+            Experience personalized, scenario-based lessons using advanced voice
+            technology. Learn naturally through dynamic conversations.
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <button 
-              className="glow-button relative inline-flex items-center justify-center text-lg px-8 py-3 rounded-md bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors"
-            >
-              Start Learning
-            </button>
+            <SignedIn>
+              <Link href="/?view=all">
+                <Button className="glow-button relative inline-flex items-center justify-center text-lg px-8 py-3 rounded-md bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors">
+                  Start Learning
+                </Button>
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button className="glow-button relative inline-flex items-center justify-center text-lg px-8 py-3 rounded-md bg-gray-900 text-white font-medium hover:bg-gray-800 transition-colors">
+                  Start Learning
+                </Button>
+              </SignInButton>
+            </SignedOut>
           </div>
         </div>
       </div>

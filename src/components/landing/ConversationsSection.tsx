@@ -1,4 +1,3 @@
-
 import { Sparkles } from "lucide-react";
 
 const features = [
@@ -19,11 +18,17 @@ const ConversationsSection = () => {
               <span className="text-gradient"> Natural Conversations</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Practice with AI language partners that adapt to your level and learning style. Get instant feedback and improve your speaking skills naturally.
+              Practice with AI language partners that adapt to your level and
+              learning style. Get instant feedback and improve your speaking
+              skills naturally.
             </p>
             <ul className="space-y-4">
               {features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-3 animate-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <li
+                  key={index}
+                  className="flex items-center gap-3 animate-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   <div className="p-1 rounded-full bg-primary/10">
                     <Sparkles className="w-4 h-4 text-primary" />
                   </div>
@@ -32,9 +37,12 @@ const ConversationsSection = () => {
               ))}
             </ul>
           </div>
-          <div className="relative animate-in" style={{ animationDelay: "200ms" }}>
-            <img 
-              src="/placeholder.svg"
+          <div
+            className="relative animate-in"
+            style={{ animationDelay: "200ms" }}
+          >
+            <img
+              src="/readme.jpg"
               alt="Natural Language Learning"
               className="rounded-2xl shadow-2xl hover-scale"
             />

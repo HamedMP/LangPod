@@ -75,10 +75,33 @@ export default function Page() {
   if (isLoading) {
     return (
       <div className="p-4">
-        <Skeleton className="h-8 w-32 mb-4" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-baseline gap-3">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <Skeleton className="h-9 w-[120px]" />
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28" />
+            <div key={i} className="border rounded-lg p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-6 w-24 mb-2" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+                <Skeleton className="h-8 w-20" />
+              </div>
+              <div className="pt-3 border-t flex items-center justify-between">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
           ))}
         </div>
       </div>

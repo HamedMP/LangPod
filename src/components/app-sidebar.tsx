@@ -320,10 +320,15 @@ export function AppSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         )}
-
-        
       </SidebarContent>
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-2 flex flex-col gap-4">
+        <Link
+          href="/marketing"
+          className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 p-2 rounded-lg hover:bg-sidebar-accent"
+        >
+          <HelpCircle className="h-4 w-4" />
+          About LangPods
+        </Link>
         <SignedOut>
           <RedirectToSignIn redirectUrl={"/"} />
         </SignedOut>

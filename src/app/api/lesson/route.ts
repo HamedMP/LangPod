@@ -2,9 +2,11 @@ import { generateSystemPrompt } from "./system-prompt";
 import { VoiceGenerator } from "./voice-generator";
 import { concatenateAudio } from "./audio-utils";
 import { ElevenLabsVoiceProvider } from "@/lib/voice-providers";
-import { AnthropicProvider } from "@/lib/ai-providers";
 import { env } from "@/env.mjs";
 import { put } from "@vercel/blob";
+import { generateText } from "ai";
+import Anthropic from "@anthropic-ai/sdk";
+import { PostHog } from "posthog-node";
 
 interface RequestBody {
   topic: string;
@@ -13,6 +15,90 @@ interface RequestBody {
   difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   voiceMap: Record<string, string>;
 }
+
+// Initialize PostHog client for LLM observability
+const phClient = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
+  host: env.NEXT_PUBLIC_POSTHOG_HOST,
+});
+
+// Initialize Anthropic client
+const anthropicClient = new Anthropic({
+  apiKey: env.ANTHROPIC_API_KEY,
+});
+
+// Create an adapter for the Anthropic client to match the LanguageModelV1 interface
+const anthropicAdapter = {
+  specificationVersion: "v1" as const,
+  provider: "anthropic",
+  modelId: "claude-3-5-sonnet-20240620",
+  defaultObjectGenerationMode: "none",
+  async generateText(options: { prompt: string; system?: string }) {
+    const response = await anthropicClient.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 1500,
+      temperature: 0.7,
+      system: options.system,
+      messages: [{ role: "user", content: options.prompt }],
+    });
+
+    if ("content" in response && Array.isArray(response.content)) {
+      const block = response.content[0];
+      if (block?.type === "text") {
+        return block.text;
+      }
+    }
+    throw new Error("No text content in Anthropic response");
+  },
+  async generateObjects() {
+    throw new Error("Object generation not supported");
+  },
+  async doGenerate(options: { prompt: string; system?: string }) {
+    const response = await anthropicClient.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 1500,
+      temperature: 0.7,
+      system: options.system,
+      messages: [{ role: "user", content: options.prompt }],
+    });
+
+    if ("content" in response && Array.isArray(response.content)) {
+      const block = response.content[0];
+      if (block?.type === "text") {
+        return {
+          text: block.text,
+          data: null,
+        };
+      }
+    }
+    throw new Error("No text content in Anthropic response");
+  },
+  async doStream(options: { prompt: string; system?: string }) {
+    const stream = await anthropicClient.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 1500,
+      temperature: 0.7,
+      system: options.system,
+      messages: [{ role: "user", content: options.prompt }],
+      stream: true,
+    });
+
+    return {
+      async *[Symbol.asyncIterator]() {
+        for await (const message of stream) {
+          if ("content" in message && Array.isArray(message.content)) {
+            const block = message.content[0];
+            if (block?.type === "text") {
+              yield {
+                type: "text" as const,
+                text: block.text,
+              };
+            }
+          }
+        }
+      },
+    };
+  },
+};
 
 export async function POST(request: Request) {
   try {
@@ -38,10 +124,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Initialize AI provider
-    const aiProvider = new AnthropicProvider();
-    console.log("Initialized AI provider");
-
     // Generate system prompt
     const { prompt, speechSettings } = generateSystemPrompt({
       language,
@@ -55,18 +137,51 @@ export async function POST(request: Request) {
     console.log("Making LLM call...");
     let content;
     try {
-      content = await aiProvider.generateCompletion([
-        {
-          role: "system",
-          content: prompt,
+      // Track LLM request in PostHog
+      phClient.capture({
+        distinctId: "system",
+        event: "llm_request",
+        properties: {
+          provider: "anthropic",
+          model: "claude-3-5-sonnet-20240620",
+          messageCount: 2,
+          hasSystemMessage: true,
         },
-        {
-          role: "user",
-          content: `Create a conversation about ${topic} following the format specified.`,
+      });
+
+      const { text } = await generateText({
+        model: anthropicAdapter,
+        system: prompt,
+        prompt: `Create a conversation about ${topic} following the format specified.`,
+        maxTokens: 1500,
+        temperature: 0.7,
+      });
+      content = text;
+
+      // Track LLM response in PostHog
+      phClient.capture({
+        distinctId: "system",
+        event: "llm_response",
+        properties: {
+          provider: "anthropic",
+          model: "claude-3-5-sonnet-20240620",
+          responseLength: text.length,
         },
-      ]);
+      });
+
       console.log("LLM call successful");
     } catch (error) {
+      // Track LLM error in PostHog
+      phClient.capture({
+        distinctId: "system",
+        event: "llm_error",
+        properties: {
+          provider: "anthropic",
+          model: "claude-3-5-sonnet-20240620",
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+      });
+
       console.error("LLM call failed:", error);
       throw error;
     }
@@ -100,25 +215,57 @@ export async function POST(request: Request) {
 3. "Dialogue, third time"
 Return them as a JSON object with keys "first", "second", "third".`;
 
-      // Update the translation call to use simpler messages format
-      const translationResponse = await aiProvider
-        .generateCompletion([
-          {
-            role: "system",
-            content:
-              "You are a translation assistant. Respond with valid JSON only.",
+      // Track translation request in PostHog
+      phClient.capture({
+        distinctId: "system",
+        event: "llm_request",
+        properties: {
+          provider: "anthropic",
+          model: "claude-3-5-sonnet-20240620",
+          type: "translation",
+        },
+      });
+
+      // Get translations
+      let translationResponse;
+      try {
+        const { text } = await generateText({
+          model: anthropicAdapter,
+          system:
+            "You are a translation assistant. Respond with valid JSON only.",
+          prompt: translationPrompt,
+          maxTokens: 500,
+          temperature: 0.3,
+        });
+        translationResponse = text;
+
+        // Track translation response in PostHog
+        phClient.capture({
+          distinctId: "system",
+          event: "llm_response",
+          properties: {
+            provider: "anthropic",
+            model: "claude-3-5-sonnet-20240620",
+            type: "translation",
+            responseLength: text.length,
           },
-          {
-            role: "user",
-            content: translationPrompt,
+        });
+      } catch (error) {
+        // Track translation error in PostHog
+        phClient.capture({
+          distinctId: "system",
+          event: "llm_error",
+          properties: {
+            provider: "anthropic",
+            model: "claude-3-5-sonnet-20240620",
+            type: "translation",
+            error: error instanceof Error ? error.message : "Unknown error",
           },
-        ])
-        .catch((error) => {
-          console.error("Translation LLM Error:", error);
-          return `{"first": "Dialogue, first time", "second": "Dialogue, second time", "third": "Dialogue, third time"}`;
         });
 
-      // Log the translation response for debugging
+        console.error("Translation LLM Error:", error);
+        translationResponse = `{"first": "Dialogue, first time", "second": "Dialogue, second time", "third": "Dialogue, third time"}`;
+      }
 
       // Parse the JSON response.
       let translations;
