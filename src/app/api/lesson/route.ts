@@ -2,7 +2,7 @@ import { generateSystemPrompt } from "./system-prompt";
 import { VoiceGenerator } from "./voice-generator";
 import { concatenateAudio } from "./audio-utils";
 import { ElevenLabsVoiceProvider } from "@/lib/voice-providers";
-import { OpenAIProvider } from "@/lib/ai-providers";
+import { AnthropicProvider } from "@/lib/ai-providers";
 import { env } from "@/env.mjs";
 
 export async function POST(request: Request) {
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
       });
     }
 
-    // Initialize AI provider without passing the API key
-    const aiProvider = new OpenAIProvider();
+    // Initialize AI provider
+    const aiProvider = new AnthropicProvider();
 
     // Generate system prompt
     const { prompt, speechSettings } = generateSystemPrompt({
@@ -49,12 +49,12 @@ export async function POST(request: Request) {
       },
     ]).catch((error) => {
       // Log the specific error for debugging
-      console.error("OpenAI API Error:", error);
-      throw new Error(`OpenAI API error: ${error.message}`);
+      console.error("Anthropic API Error:", error);
+      throw new Error(`Anthropic API error: ${error.message}`);
     });
 
     if (!content) {
-      throw new Error("No content received from OpenAI");
+      throw new Error("No content received from Anthropic");
     }
 
     /////////////////////////////////
@@ -81,15 +81,20 @@ export async function POST(request: Request) {
 3. "Dialogue, third time"
 Return them as a JSON object with keys "first", "second", "third".`;
 
-      // Second LLM call to generate translations.
+      // Update the translation call to use simpler messages format
       const translationResponse = await aiProvider
         .generateCompletion([
-          { role: "system", content: "You are a translation assistant." },
-          { role: "user", content: translationPrompt },
+          { 
+            role: "system", 
+            content: "You are a translation assistant. Respond with valid JSON only." 
+          },
+          { 
+            role: "user", 
+            content: translationPrompt 
+          }
         ])
         .catch((error) => {
           console.error("Translation LLM Error:", error);
-          // Fallback JSON if the translation call fails.
           return `{"first": "Dialogue, first time", "second": "Dialogue, second time", "third": "Dialogue, third time"}`;
         });
 

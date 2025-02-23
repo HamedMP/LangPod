@@ -1,43 +1,54 @@
-import OpenAI from "openai";
+import Anthropic from '@anthropic-ai/sdk';
 import { env } from "@/env.mjs";
 
 export interface AIProvider {
-  generateCompletion(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<string | null>;
+  generateCompletion(messages: Array<{ role: string; content: string }>): Promise<string | null>;
 }
 
-export class OpenAIProvider implements AIProvider {
-  private client: OpenAI;
+export class AnthropicProvider implements AIProvider {
+  private client: Anthropic;
 
   constructor() {
-    const apiKey = env.OPENAI_API_KEY;
+    const apiKey = env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error("OpenAI API key is required");
+      throw new Error("Anthropic API key is required");
     }
-    this.client = new OpenAI({ apiKey });
+    this.client = new Anthropic({ apiKey });
   }
 
   async generateCompletion(
-    messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[], 
-    options: Partial<OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming> = {}
+    messages: Array<{ role: string; content: string }>,
+    options: Partial<Anthropic.MessageCreateParams> = {}
   ): Promise<string | null> {
     try {
-      const defaultOptions: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
-        model: "gpt-4o-mini",
+      // Convert OpenAI-style messages to Anthropic format
+      const systemMessage = messages.find(m => m.role === 'system')?.content || '';
+      const userMessages = messages
+        .filter(m => m.role === 'user')
+        .map(m => m.content)
+        .join('\n\n');
+
+      const defaultOptions: Anthropic.MessageCreateParams = {
+        model: "claude-3-5-sonnet-20240620",
         max_tokens: 1500,
         temperature: 0.7,
-        messages,
+        system: systemMessage,
+        messages: [{ role: 'user', content: userMessages }],
         ...options
       };
 
-      const response = await this.client.chat.completions.create(defaultOptions);
+      const response = await this.client.messages.create(defaultOptions);
 
-      if (!response.choices[0]?.message?.content) {
-        throw new Error("No content in OpenAI response");
+      if ('content' in response && Array.isArray(response.content)) {
+        const block = response.content[0];
+        if (block?.type === 'text') {
+          return block.text;
+        }
       }
-
-      return response.choices[0].message.content;
+      
+      throw new Error("No text content in Anthropic response");
     } catch (error) {
-      console.error("OpenAI API Error:", error);
+      console.error("Anthropic API Error:", error);
       throw error;
     }
   }

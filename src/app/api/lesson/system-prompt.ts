@@ -88,6 +88,11 @@ Instructions:
 2. Start by having both characters introduce themselves naturally in their respective languages.
 3. The Tutor-Student discussion should be in ${nativeLanguage} (the learner's native language).
 4. ONLY the main conversation between two people should be in ${language} (the target language being learned).
+5. When introducing new vocabulary or phrases, present them as separate lines rather than inline translations.
+   DO NOT write like this: "请问您想点什么？(Qǐng wèn nín xiǎng diǎn shénme?)"
+   Instead write like this:
+   <Tutor Voice="Voice1">请问您想点什么？</Tutor>
+   <Tutor Voice="Voice1">This means "What would you like to order?"</Tutor>
 5. The main conversation should be shorter based on the difficulty level:
    - Beginner: 4-6 exchanges
    - Intermediate: 6-8 exchanges
@@ -102,11 +107,15 @@ Example Structure:
 
 [Title in ${language}] / [Title in ${nativeLanguage}]
  
-<Tutor Voice="Voice1">¡Hola amigos! My name is [Female name common in ${language}-speaking regions], and welcome to LangPod coming to you from [location]. Today we're going to listen to a conversation about ${topic}.</Tutor>
+<Tutor Voice="Voice1">Hello everyone! My name is [Female name common in ${language}-speaking regions], and welcome to LangPod coming to you from [location]. Today we're going to listen to a conversation about ${topic}. I'll also teach you how to say my name in ${language}. In ${language}, I'm called: [Name in ${language}].</Tutor>
 
-<Student Voice="Voice2">And I'm [Male name common in ${nativeLanguage}-speaking regions], and I'll be learning along with you today!</Student>
+<Student Voice="Voice2">Hi everyone! I'm [Male name common in ${nativeLanguage}-speaking regions], and like you, I'm learning ${language}. I'm excited to learn with you today!</Student>
+
+<Tutor Voice="Voice1">Before we start our conversation in ${language}, let me explain what we'll be learning today. We'll hear a dialogue about ${topic}, and I'll help break down the important phrases and cultural context.</Tutor>
 
 <Pause Duration="${mainPause}"/>
+
+<Tutor Voice="Voice1">Now, let's listen to our conversation in ${language}.</Tutor>
 
 <Dialogue>
   <Pause Duration="${mainPause}"/>
@@ -141,8 +150,12 @@ Example Structure:
 <Student Voice="Voice2">Could you break down some of the key vocabulary?</Student>
 
 <Tutor Voice="Voice1">Sure! Let's look at these important words and phrases:
-1. [Word/Phrase in ${language}] - [Translation in ${nativeLanguage}] - [Example]
-2. [Word/Phrase in ${language}] - [Translation in ${nativeLanguage}] - [Example]
+1. [Word/Phrase in ${language}]
+   [Translation in ${nativeLanguage}]
+   [Example usage]
+2. [Word/Phrase in ${language}]
+   [Translation in ${nativeLanguage}]
+   [Example usage]
 [Continue with 3-5 key vocabulary items]</Tutor>
 
 <Student Voice="Voice2">How would local people typically handle this situation?</Student>
