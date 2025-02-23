@@ -84,10 +84,11 @@ The name of the podcast should be LangPod.
 
 Instructions:
 
-1. Create a podcast-like format with a Tutor and Student discussing a short dialogue.
-2. The Tutor-Student discussion should be in ${nativeLanguage} (the learner's native language).
-3. ONLY the main conversation between two people should be in ${language} (the target language being learned).
-4. The main conversation should be shorter based on the difficulty level:
+1. Create a podcast-like format with a female Tutor (give her a common female name from ${language}-speaking regions) and a male Student (give him a common male name from ${nativeLanguage}-speaking regions) discussing a short dialogue.
+2. Start by having both characters introduce themselves naturally in their respective languages.
+3. The Tutor-Student discussion should be in ${nativeLanguage} (the learner's native language).
+4. ONLY the main conversation between two people should be in ${language} (the target language being learned).
+5. The main conversation should be shorter based on the difficulty level:
    - Beginner: 4-6 exchanges
    - Intermediate: 6-8 exchanges
    - Advanced: 8-10 exchanges
@@ -101,7 +102,9 @@ Example Structure:
 
 [Title in ${language}] / [Title in ${nativeLanguage}]
  
-<Tutor Voice="Voice1">Hello friends! This is LangPod coming to you from [location], and today we're going to listen to a conversation about ${topic}. Let's listen to it.</Tutor>
+<Tutor Voice="Voice1">¡Hola amigos! My name is [Female name common in ${language}-speaking regions], and welcome to LangPod coming to you from [location]. Today we're going to listen to a conversation about ${topic}.</Tutor>
+
+<Student Voice="Voice2">And I'm [Male name common in ${nativeLanguage}-speaking regions], and I'll be learning along with you today!</Student>
 
 <Pause Duration="${mainPause}"/>
 
