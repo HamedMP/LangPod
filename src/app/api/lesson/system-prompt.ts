@@ -88,7 +88,7 @@ Instructions:
 2. Start by having both characters introduce themselves naturally in their respective languages.
 3. The Tutor-Student discussion should be in ${nativeLanguage} (the learner's native language).
 4. ONLY the main conversation between two people should be in ${language} (the target language being learned).
-5. When introducing new vocabulary or phrases, present them as separate lines rather than inline translations.
+5. When talking about new vocabulary or phrases in a non-latin language, do not write the pinyin or respective romanization in parentheses.
    DO NOT write like this: "请问您想点什么？(Qǐng wèn nín xiǎng diǎn shénme?)"
    Instead write like this:
    <Tutor Voice="Voice1">请问您想点什么？</Tutor>
@@ -102,6 +102,8 @@ Instructions:
 Additionally, adjust the pause durations in the conversation to help the listener process the information:
 - Use a main pause of ${mainPause} seconds at key breaks.
 - Use a shorter pause of ${dialoguePause} seconds between dialogue lines.
+
+The introduction should be in ${nativeLanguage}.
 
 Example Structure:
 
