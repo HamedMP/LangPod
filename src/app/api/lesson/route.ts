@@ -9,7 +9,7 @@ interface RequestBody {
   topic: string;
   language: string;
   nativeLanguage: string;
-  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "business";
+  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   voiceMap: Record<string, string>;
 }
 

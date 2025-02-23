@@ -8,7 +8,7 @@ export function generateSystemPrompt({
   language: string;
   nativeLanguage: string;
   topic: string;
-  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "business";
+  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 }) {
 
   // Define speech rate settings based on CEFR level
@@ -44,11 +44,7 @@ export function generateSystemPrompt({
           stability: 0.60,      // Native-like speech rate
           similarity: 0.60      // Full voice variation
         };
-      case "business":
-        return {
-          stability: 0.70,      // Professional pace
-          similarity: 0.70      // Professional tone
-        };
+
       default:
         return {
           stability: 0.85,      // Default to A1 settings
@@ -66,7 +62,6 @@ export function generateSystemPrompt({
       case "B2": return "1.25";
       case "C1": return "1";
       case "C2": return "0.75";   // Shortest pause for advanced
-      case "business": return "1.5";
       default: return "2.5";
     }
   })();
@@ -80,7 +75,6 @@ export function generateSystemPrompt({
       case "B2": return "0.6";
       case "C1": return "0.5";
       case "C2": return "0.4";
-      case "business": return "0.75";
       default: return "1.25";
     }
   })();
@@ -109,7 +103,6 @@ Instructions:
    - B2 (Upper Intermediate): 8-10 exchanges
    - C1 (Advanced): 10-12 exchanges
    - C2 (Mastery): 12-15 exchanges
-   - Business: 8-10 exchanges with specialized vocabulary
 
 Additionally, adjust the pause durations in the conversation to help the listener process the information:
 - Use a main pause of ${mainPause} seconds at key breaks.
@@ -185,7 +178,6 @@ Level Guidelines:
 - B2: Hypotheticals, detailed opinions, some idioms, current events
 - C1: Complex topics, abstract ideas, professional contexts, most idioms
 - C2: Native-like fluency, nuanced expression, cultural references
-- Business: Field-specific terminology, formal language, negotiations
 `,
     speechSettings
   };
