@@ -13,6 +13,7 @@ export class VoiceGenerator {
   private voiceMap: Record<string, string> = {
     "Voice1": "9BWtsMINqrJLrRacOk9x",
     "Voice2": "CwhRBWXzGAHq8TQ4Fs17",
+    "Voice3": "N2lVS1w4EtoT3dr4eOWO",
   };
 
   constructor(private voiceProvider: VoiceProvider) {}
@@ -20,14 +21,15 @@ export class VoiceGenerator {
   async generateAudioSegments(conversation: string): Promise<AudioSegment[]> {
     const segments: AudioSegment[] = [];
     
-    // Updated regex to match voice tags and pause tags only (removing music tags)
+    // Updated regex to match voice tags (including the new Dialogue tag) and pause tags.
     const pattern = /<(?:(\w+)\s+Voice="(Voice\d+)">([\s\S]*?)<\/\1|Pause\s+Duration="(\d*\.?\d+)"\/?>)/g;
     let match;
 
     while ((match = pattern.exec(conversation)) !== null) {
-      if (match[4]) { // Pause segment
+      if (match[4]) { // Pause segment detected
         console.log("Processing pause segment");
         const duration = parseFloat(match[4]);
+        // Request silence audio using the voice provider.
         const silenceAudio = await this.voiceProvider.generateSilence(duration);
         segments.push({
           text: "",
@@ -36,10 +38,11 @@ export class VoiceGenerator {
           isPause: true,
           duration
         });
-      } else { // Voice segment
+      } else { // Voice segment detected
         console.log("Processing voice segment:", match[3]?.slice(0, 50));
         const [_, persona, voice, text] = match;
         try {
+          // Generate audio using the voice provider based on our voiceMap.
           const audio = await this.voiceProvider.generateAudio(text, this.voiceMap[voice]);
           segments.push({
             text,

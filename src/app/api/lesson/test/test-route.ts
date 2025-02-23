@@ -9,7 +9,7 @@ async function test() {
   const mockBody = {
     topic: "ordering food",
     language: "chinese",
-    nativeLanguage: "Swedish",
+    nativeLanguage: "english",
     difficulty: "beginner"
   };
 

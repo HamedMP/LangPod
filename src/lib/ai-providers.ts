@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { env } from "@/env.mjs";
 
 export interface AIProvider {
   generateCompletion(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<string | null>;
@@ -7,7 +8,8 @@ export interface AIProvider {
 export class OpenAIProvider implements AIProvider {
   private client: OpenAI;
 
-  constructor(apiKey: string) {
+  constructor() {
+    const apiKey = env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error("OpenAI API key is required");
     }

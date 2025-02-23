@@ -31,8 +31,8 @@ Instructions:
 Example Structure:
 
 [Title in ${language}] / [Title in ${nativeLanguage}]
-
-<Tutor Voice="Voice1">Hello friends! This is ${language}Pod coming to you from [location], and today we're going to listen to a conversation about ${topic}. Let's listen to it.</Tutor>
+ 
+<Tutor Voice="Voice1">Hello friends! This is LangPod coming to you from [location], and today we're going to listen to a conversation about ${topic}. Let's listen to it.</Tutor>
 
 <Pause Duration="1"/>
 
