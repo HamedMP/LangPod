@@ -8,71 +8,80 @@ export function generateSystemPrompt({
   language: string;
   nativeLanguage: string;
   topic: string;
-  difficulty: "beginner" | "intermediate" | "advanced" | "business/professional";
+  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "business";
 }) {
 
-  // Define speech rate settings based on difficulty level
+  // Define speech rate settings based on CEFR level
   const speechSettings = (() => {
     switch (difficulty) {
-      case "beginner":
+      case "A1":
         return {
-          stability: 0.85,      // More stable, clearer speech
-          similarity: 0.85      // More consistent voice
+          stability: 0.85,      // Very clear, slow speech
+          similarity: 0.85      // Highly consistent voice
         };
-      case "intermediate":
+      case "A2":
+        return {
+          stability: 0.80,      // Clear, measured speech
+          similarity: 0.80      // Consistent voice
+        };
+      case "B1":
         return {
           stability: 0.75,      // Moderate speech rate
           similarity: 0.75      // Balanced voice consistency
         };
-      case "advanced":
+      case "B2":
         return {
-          stability: 0.65,      // Faster, more natural speech
+          stability: 0.70,      // Natural speech rate
+          similarity: 0.70      // Natural voice variation
+        };
+      case "C1":
+        return {
+          stability: 0.65,      // Fast, natural speech
           similarity: 0.65      // More variation in voice
         };
-      case "business/professional":
+      case "C2":
         return {
-          stability: 0.70,      // Slightly faster than intermediate
+          stability: 0.60,      // Native-like speech rate
+          similarity: 0.60      // Full voice variation
+        };
+      case "business":
+        return {
+          stability: 0.70,      // Professional pace
           similarity: 0.70      // Professional tone
         };
       default:
         return {
-          stability: 0.85,      // Default to beginner settings
+          stability: 0.85,      // Default to A1 settings
           similarity: 0.85
         };
     }
   })();
 
-  // Define dynamic pause durations based on the difficulty level.
-  // For example, higher difficulty levels will have shorter pauses to help learners process information.
+  // Update pause durations for CEFR levels
   const mainPause = (() => {
     switch (difficulty) {
-      case "beginner":
-        return "2";           // 2 seconds pause for beginner level
-      case "intermediate":
-        return "1.5";         // 1.5 seconds pause for intermediate level
-      case "advanced":
-        return "1";           // 1 second pause for advanced level
-      case "business/professional":
-        return "1.5";         // 1.5 seconds pause for business/professional level
-      default:
-        return "2";           // default fallback
+      case "A1": return "2.5";    // Longest pause for beginners
+      case "A2": return "2";
+      case "B1": return "1.5";
+      case "B2": return "1.25";
+      case "C1": return "1";
+      case "C2": return "0.75";   // Shortest pause for advanced
+      case "business": return "1.5";
+      default: return "2.5";
     }
   })();
 
-  // Define a shorter pause duration used within dialogue exchanges.
-  // Typically set to about half of the main pause.
+  // Update dialogue pauses for CEFR levels
   const dialoguePause = (() => {
     switch (difficulty) {
-      case "beginner":
-        return "1";           // 1 second pause for beginner level
-      case "intermediate":
-        return "0.75";        // 0.75 seconds pause for intermediate level
-      case "advanced":
-        return "0.5";         // 0.5 second pause for advanced level
-      case "business/professional":
-        return "0.75";        // 0.75 seconds pause for business/professional level
-      default:
-        return "1";           // default fallback
+      case "A1": return "1.25";
+      case "A2": return "1";
+      case "B1": return "0.75";
+      case "B2": return "0.6";
+      case "C1": return "0.5";
+      case "C2": return "0.4";
+      case "business": return "0.75";
+      default: return "1.25";
     }
   })();
 
@@ -93,11 +102,14 @@ Instructions:
    Instead write like this:
    <Tutor Voice="Voice1">请问您想点什么？</Tutor>
    <Tutor Voice="Voice1">This means "What would you like to order?"</Tutor>
-5. The main conversation should be shorter based on the difficulty level:
-   - Beginner: 4-6 exchanges
-   - Intermediate: 6-8 exchanges
-   - Advanced: 8-10 exchanges
-   - Business/Professional: 8-10 exchanges with specialized vocabulary
+5. The main conversation should be shorter based on the CEFR level:
+   - A1 (Beginner): 3-4 exchanges with basic phrases
+   - A2 (Elementary): 4-6 exchanges
+   - B1 (Intermediate): 6-8 exchanges
+   - B2 (Upper Intermediate): 8-10 exchanges
+   - C1 (Advanced): 10-12 exchanges
+   - C2 (Mastery): 12-15 exchanges
+   - Business: 8-10 exchanges with specialized vocabulary
 
 Additionally, adjust the pause durations in the conversation to help the listener process the information:
 - Use a main pause of ${mainPause} seconds at key breaks.
@@ -167,10 +179,13 @@ Example Structure:
 <Tutor Voice="Voice1">Now, let's practice! Try to [suggested practice activity related to the conversation].</Tutor>
 
 Level Guidelines:
-- Beginner: Simple greetings, basic needs, everyday objects, simple present tense
-- Intermediate: Past tense, future plans, opinions, descriptions, common idioms
-- Advanced: Hypotheticals, complex opinions, idioms, cultural nuances, professional scenarios
-- Business/Professional: Field-specific terminology, formal language, negotiations, presentations
+- A1: Basic phrases, greetings, personal information, simple present tense
+- A2: Simple past, basic needs, daily routines, simple descriptions
+- B1: Past tense, future plans, opinions, feelings, common situations
+- B2: Hypotheticals, detailed opinions, some idioms, current events
+- C1: Complex topics, abstract ideas, professional contexts, most idioms
+- C2: Native-like fluency, nuanced expression, cultural references
+- Business: Field-specific terminology, formal language, negotiations
 `,
     speechSettings
   };

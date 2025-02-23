@@ -5,6 +5,14 @@ import { ElevenLabsVoiceProvider } from "@/lib/voice-providers";
 import { AnthropicProvider } from "@/lib/ai-providers";
 import { env } from "@/env.mjs";
 
+interface RequestBody {
+  topic: string;
+  language: string;
+  nativeLanguage: string;
+  difficulty: "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "business";
+  voiceMap: Record<string, string>;
+}
+
 export async function POST(request: Request) {
   try {
     // Parse the request body
