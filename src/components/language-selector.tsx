@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Twemoji from "@/components/common/Twemoji";
 import { ArrowLeft } from "lucide-react";
+import { getCountryCode } from "@/lib/utils";
+import getUnicodeFlagIcon from "country-flag-icons/unicode";
 
 const levels = [
   { code: "A1", name: "Beginner", emoji: "🌱" },
@@ -29,6 +31,14 @@ export function LanguageSelector() {
 
   const { data: languages, isLoading } = useFindManyLanguage();
   const createCourse = useCreateCourse();
+
+  const selectedTargetLanguage = languages?.find(
+    (l) => l.id === targetLanguage
+  );
+  const selectedNativeLanguage = languages?.find(
+    (l) => l.id === nativeLanguage
+  );
+  const selectedLevel = levels.find((l) => l.code === level);
 
   const handleLanguageSelect = async (langId: string) => {
     setNativeLanguage(langId);
@@ -94,25 +104,78 @@ export function LanguageSelector() {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+      {step > 1 && selectedTargetLanguage && (
+        <div className="mb-8 text-center">
+          <motion.p
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xl text-muted-foreground"
+          >
+            I want to learn{" "}
+            <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+              <span className="text-2xl">
+                {getUnicodeFlagIcon(
+                  getCountryCode(selectedTargetLanguage.code)
+                )}
+              </span>
+              {selectedTargetLanguage.name}
+            </span>
+            {step > 2 && selectedLevel && (
+              <>
+                {" "}
+                at{" "}
+                <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+                  <span>{selectedLevel.emoji}</span>
+                  {selectedLevel.code}
+                </span>{" "}
+                level
+              </>
+            )}
+            {step > 2 && selectedNativeLanguage && (
+              <>
+                {" "}
+                in{" "}
+                <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+                  <span className="text-2xl">
+                    {getUnicodeFlagIcon(
+                      getCountryCode(selectedNativeLanguage.code)
+                    )}
+                  </span>
+                  {selectedNativeLanguage.name}
+                </span>
+              </>
+            )}
+          </motion.p>
+        </div>
+      )}
+
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-3">
           {step === 1
             ? "Choose Language to Learn"
             : step === 2
               ? "Select Your Level"
               : "What's Your Native Language?"}
         </h1>
-        {step > 1 && (
-          <Button
-            variant="ghost"
-            className="flex items-center gap-2"
-            onClick={handleBack}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        )}
+        <p className="text-lg text-muted-foreground">
+          {step === 1
+            ? "Pick a language you want to master"
+            : step === 2
+              ? "Choose your starting point"
+              : "Select the language you're most comfortable with"}
+        </p>
       </div>
+
+      {step > 1 && (
+        <Button
+          variant="ghost"
+          className="absolute top-4 left-4 flex items-center gap-2"
+          onClick={handleBack}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      )}
 
       <AnimatePresence mode="wait">
         {step === 1 && (
@@ -122,7 +185,7 @@ export function LanguageSelector() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {languages.map((lang) => (
                 <Button
                   key={lang.id}
@@ -130,18 +193,17 @@ export function LanguageSelector() {
                     setTargetLanguage(lang.id);
                     setStep(2);
                   }}
-                  className="py-8 group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-slate-50 h-fit"
+                  className={`group relative flex h-32 flex-col items-center justify-center gap-3 p-6 transition-all duration-300 ${
+                    targetLanguage === lang.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent/50"
+                  }`}
                   variant="outline"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="flex flex-col items-center text-center">
-                    <span className="mb-4 text-7xl">
-                      <Twemoji emoji={lang.code} className="w-16" />
-                    </span>
-                    <span className="text-lg font-bold text-foreground/70">
-                      {lang.name}
-                    </span>
-                  </div>
+                  <span className="text-3xl">
+                    {getUnicodeFlagIcon(getCountryCode(lang.code))}
+                  </span>
+                  <span className="text-lg font-medium">{lang.name}</span>
                 </Button>
               ))}
             </div>
@@ -154,8 +216,9 @@ export function LanguageSelector() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
+            className="max-w-3xl mx-auto w-full"
           >
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
               {levels.map((lvl) => (
                 <Button
                   key={lvl.code}
@@ -163,20 +226,19 @@ export function LanguageSelector() {
                     setLevel(lvl.code);
                     setStep(3);
                   }}
-                  className="py-8 group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-slate-50 h-fit"
+                  className={`flex h-32 w-32 flex-col items-center justify-center gap-3 ${
+                    level === lvl.code
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent/50"
+                  }`}
                   variant="outline"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="flex flex-col items-center text-center">
-                    <span className="mb-4 text-7xl">
-                      <Twemoji emoji={lvl.emoji} className="w-16" />
-                    </span>
-                    <span className="text-lg font-bold text-foreground/70">
+                  <span className="text-3xl">{lvl.emoji}</span>
+                  <div className="text-center">
+                    <div className="font-medium">{lvl.code}</div>
+                    <div className="text-xs text-muted-foreground">
                       {lvl.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {lvl.code}
-                    </span>
+                    </div>
                   </div>
                 </Button>
               ))}
@@ -191,23 +253,22 @@ export function LanguageSelector() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {languages.map((lang) => (
                 <Button
                   key={lang.id}
                   onClick={() => handleLanguageSelect(lang.id)}
-                  className="py-8 group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-slate-50 h-fit"
+                  className={`group relative flex h-32 flex-col items-center justify-center gap-3 p-6 transition-all duration-300 ${
+                    nativeLanguage === lang.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent/50"
+                  }`}
                   variant="outline"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="flex flex-col items-center text-center">
-                    <span className="mb-4 text-7xl">
-                      <Twemoji emoji={lang.code} className="w-16" />
-                    </span>
-                    <span className="text-lg font-bold text-foreground/70">
-                      {lang.name}
-                    </span>
-                  </div>
+                  <span className="text-3xl">
+                    {getUnicodeFlagIcon(getCountryCode(lang.code))}
+                  </span>
+                  <span className="text-lg font-medium">{lang.name}</span>
                 </Button>
               ))}
             </div>

@@ -18,12 +18,14 @@ export const env = createEnv({
       .min(1, "Clerk publishable key is required"),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1, "PostHog key is required"),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().min(1, "PostHog host is required"),
+    NEXT_PUBLIC_AGENT_ID: z.string().min(1, "Agent ID is required"),
   },
   runtimeEnv: {
     ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     AGENT_ID: process.env.AGENT_ID,
+    NEXT_PUBLIC_AGENT_ID: process.env.NEXT_PUBLIC_AGENT_ID,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,

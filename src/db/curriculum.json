@@ -1,0 +1,506 @@
+{
+  "A1": {
+	"topics": [
+  	{
+    	"title": "Basic Greetings and Introductions",
+    	"description": "Learn essential phrases for saying hello, goodbye, and introducing yourself. You'll practice basic pronunciation and understand cultural differences in greetings."
+  	},
+  	{
+    	"title": "Numbers and Counting",
+    	"description": "Master numbers from 0-100, including basic math vocabulary. You'll learn to tell time, discuss prices, and handle basic numerical information in everyday situations."
+  	},
+  	{
+    	"title": "Family Members",
+    	"description": "Learn vocabulary for immediate and extended family relationships. You'll be able to describe your family structure and ask others about their families."
+  	},
+  	{
+    	"title": "Colors and Basic Adjectives",
+    	"description": "Study common colors and basic descriptive words. You'll learn to describe objects, clothes, and express simple preferences."
+  	},
+  	{
+    	"title": "Days, Months, and Seasons",
+    	"description": "Master vocabulary related to time, including days of the week, months, and seasons. You'll learn to discuss dates and schedule simple appointments."
+  	},
+  	{
+    	"title": "Basic Food and Drinks",
+    	"description": "Learn vocabulary for common foods, drinks, and basic restaurant phrases. You'll practice ordering simple meals and expressing basic preferences."
+  	},
+  	{
+    	"title": "Weather and Climate",
+    	"description": "Study basic weather expressions and seasonal vocabulary. You'll learn to understand simple weather forecasts and discuss daily weather conditions."
+  	},
+  	{
+    	"title": "Classroom Objects",
+    	"description": "Learn names of common objects found in a learning environment. You'll master basic classroom instructions and requests."
+  	},
+  	{
+    	"title": "Simple Present Tense",
+    	"description": "Understanding and using the simple present tense for daily routines and facts. You'll learn to describe your daily activities and habits."
+  	},
+  	{
+    	"title": "Basic Questions",
+    	"description": "Master essential question words and simple question formation. You'll learn to ask for basic information and understand simple responses."
+  	},
+  	{
+    	"title": "Parts of the Body",
+    	"description": "Learn vocabulary for basic body parts and simple health expressions. You'll be able to describe basic physical conditions and pain."
+  	},
+  	{
+    	"title": "Transportation",
+    	"description": "Study vocabulary for common modes of transportation. You'll learn to buy tickets and ask for basic directions."
+  	},
+  	{
+    	"title": "Houses and Rooms",
+    	"description": "Learn vocabulary for different types of housing and rooms. You'll be able to describe your living space and basic furniture."
+  	},
+  	{
+    	"title": "Basic Clothing",
+    	"description": "Master vocabulary for common clothing items and colors. You'll learn to describe what you're wearing and express simple preferences."
+  	},
+  	{
+    	"title": "Animals and Pets",
+    	"description": "Learn names of common animals and basic pet-related vocabulary. You'll be able to describe pets and discuss basic animal characteristics."
+  	},
+  	{
+    	"title": "Simple Hobbies",
+    	"description": "Study vocabulary for common hobbies and leisure activities. You'll learn to discuss what you like to do in your free time."
+  	},
+  	{
+    	"title": "Basic Emotions",
+    	"description": "Learn to express and understand basic emotions and feelings. You'll master simple phrases to describe how you feel."
+  	},
+  	{
+    	"title": "Numbers in Context",
+    	"description": "Practice using numbers in real-life situations like shopping and time-telling. You'll learn to handle basic monetary transactions."
+  	},
+  	{
+    	"title": "Personal Information",
+    	"description": "Master vocabulary for sharing and asking about personal details. You'll learn to fill out simple forms and share basic information about yourself."
+  	},
+  	{
+    	"title": "Basic Commands",
+    	"description": "Learn to understand and use simple imperative forms. You'll master basic instructions and classroom commands."
+  	}
+	]
+  },
+  "A2": {
+	"topics": [
+  	{
+    	"title": "Shopping and Prices",
+    	"description": "Learn vocabulary and phrases for shopping, including asking about prices and sizes. You'll practice haggling and understanding basic product descriptions."
+  	},
+  	{
+    	"title": "Past Experiences",
+    	"description": "Master the simple past tense to talk about recent experiences. You'll learn to describe what you did yesterday or last weekend."
+  	},
+  	{
+    	"title": "Making Plans",
+    	"description": "Study future tense structures and vocabulary for planning events. You'll learn to make, accept, and decline invitations."
+  	},
+  	{
+    	"title": "Daily Routines",
+    	"description": "Expand vocabulary related to daily activities and habits. You'll learn to describe your typical day in detail."
+  	},
+  	{
+    	"title": "Restaurant Ordering",
+    	"description": "Master more complex restaurant vocabulary and ordering phrases. You'll learn to make special requests and understand menu descriptions."
+  	},
+  	{
+    	"title": "Health and Illness",
+    	"description": "Learn vocabulary for common ailments and medical situations. You'll practice describing symptoms and understanding basic medical advice."
+  	},
+  	{
+    	"title": "Jobs and Occupations",
+    	"description": "Study vocabulary related to different professions and workplaces. You'll learn to discuss job responsibilities and career aspirations."
+  	},
+  	{
+    	"title": "Describing People",
+    	"description": "Master advanced adjectives for describing physical appearance and personality. You'll learn to give detailed descriptions of people."
+  	},
+  	{
+    	"title": "House and Furniture",
+    	"description": "Expand vocabulary for household items and furniture. You'll learn to describe your home in detail and discuss housing preferences."
+  	},
+  	{
+    	"title": "Travel and Tourism",
+    	"description": "Learn vocabulary for travel planning and tourist activities. You'll practice booking accommodations and asking for tourist information."
+  	},
+  	{
+    	"title": "Hobbies and Free Time",
+    	"description": "Expand vocabulary for leisure activities and entertainment. You'll learn to discuss your interests in more detail."
+  	},
+  	{
+    	"title": "Weather Patterns",
+    	"description": "Study more complex weather vocabulary and expressions. You'll learn to discuss climate patterns and weather forecasts."
+  	},
+  	{
+    	"title": "Celebrations and Festivals",
+    	"description": "Learn vocabulary related to holidays and cultural celebrations. You'll practice describing traditional festivities and customs."
+  	},
+  	{
+    	"title": "Public Transportation",
+    	"description": "Master vocabulary for using different types of public transport. You'll learn to ask for directions and handle travel situations."
+  	},
+  	{
+    	"title": "School and Education",
+    	"description": "Study vocabulary related to educational systems and academic life. You'll learn to discuss school subjects and educational experiences."
+  	},
+  	{
+    	"title": "Shopping for Clothes",
+    	"description": "Learn detailed vocabulary for clothing and fashion. You'll practice describing styles and making purchases."
+  	},
+  	{
+    	"title": "Food and Cooking",
+    	"description": "Expand vocabulary for ingredients and cooking methods. You'll learn to follow simple recipes and discuss food preferences."
+  	},
+  	{
+    	"title": "Technology Basics",
+    	"description": "Study vocabulary for common technology and devices. You'll learn to discuss basic computer and smartphone usage."
+  	},
+  	{
+    	"title": "Sports and Exercise",
+    	"description": "Learn vocabulary for different sports and physical activities. You'll practice discussing sports events and exercise routines."
+  	},
+  	{
+    	"title": "Simple Opinions",
+    	"description": "Master phrases for expressing and justifying basic opinions. You'll learn to agree and disagree politely."
+  	}
+	]
+  },
+  "B1": {
+	"topics": [
+  	{
+    	"title": "Work Environment",
+    	"description": "Learn professional vocabulary and office communication. You'll practice job interviews, workplace interactions, and professional email writing."
+  	},
+  	{
+    	"title": "Current Events",
+    	"description": "Study vocabulary for discussing news and current affairs. You'll learn to understand and discuss basic news articles and social issues."
+  	},
+  	{
+    	"title": "Environmental Issues",
+    	"description": "Master vocabulary related to environment and sustainability. You'll learn to discuss environmental problems and solutions."
+  	},
+  	{
+    	"title": "Personal Relationships",
+    	"description": "Explore vocabulary for describing relationships and emotions. You'll learn to discuss interpersonal dynamics and give relationship advice."
+  	},
+  	{
+    	"title": "Cultural Differences",
+    	"description": "Study vocabulary for discussing cultural practices and traditions. You'll learn to compare different cultures and discuss cultural adaptation."
+  	},
+  	{
+    	"title": "Technology and Society",
+    	"description": "Learn vocabulary related to modern technology and its impact. You'll practice discussing advantages and disadvantages of technological advances."
+  	},
+  	{
+    	"title": "Health and Lifestyle",
+    	"description": "Master vocabulary for discussing healthy living and wellness. You'll learn to talk about fitness routines and lifestyle choices."
+  	},
+  	{
+    	"title": "Travel Experiences",
+    	"description": "Expand vocabulary for describing travel adventures and experiences. You'll learn to narrate travel stories and discuss different destinations."
+  	},
+  	{
+    	"title": "Education Systems",
+    	"description": "Study vocabulary related to academic life and educational methods. You'll learn to compare different educational approaches and discuss learning styles."
+  	},
+  	{
+    	"title": "Food and Culture",
+    	"description": "Learn vocabulary for discussing cuisine and dining customs. You'll practice describing traditional dishes and cooking methods."
+  	},
+  	{
+    	"title": "Urban Life",
+    	"description": "Master vocabulary related to city living and urban development. You'll learn to discuss advantages and challenges of urban life."
+  	},
+  	{
+    	"title": "Entertainment",
+    	"description": "Study vocabulary for different forms of entertainment. You'll learn to discuss movies, books, and cultural events in detail."
+  	},
+  	{
+    	"title": "Social Media",
+    	"description": "Learn vocabulary related to social networking and online communication. You'll practice discussing digital trends and online behavior."
+  	},
+  	{
+    	"title": "Fashion and Trends",
+    	"description": "Master vocabulary for discussing fashion styles and trends. You'll learn to express opinions about fashion and consumer behavior."
+  	},
+  	{
+    	"title": "Sports and Competition",
+    	"description": "Expand vocabulary for discussing sports events and achievements. You'll learn to analyze games and discuss sports news."
+  	},
+  	{
+    	"title": "Personal Finance",
+    	"description": "Study vocabulary related to money management and banking. You'll learn to discuss financial planning and economic concepts."
+  	},
+  	{
+    	"title": "Art and Creativity",
+    	"description": "Learn vocabulary for discussing various art forms and creative expression. You'll practice describing artwork and artistic styles."
+  	},
+  	{
+    	"title": "Transportation Issues",
+    	"description": "Master vocabulary related to transport systems and traffic. You'll learn to discuss transportation problems and solutions."
+  	},
+  	{
+    	"title": "Housing Market",
+    	"description": "Study vocabulary related to real estate and housing trends. You'll practice discussing housing options and market conditions."
+  	},
+  	{
+    	"title": "Personal Development",
+    	"description": "Learn vocabulary for discussing self-improvement and goals. You'll practice talking about personal growth and future plans."
+  	}
+	]
+  },
+  "B2": {
+	"topics": [
+  	{
+    	"title": "Global Economics",
+    	"description": "Master vocabulary related to international trade and economic systems. You'll learn to discuss global economic trends and their impacts."
+  	},
+  	{
+    	"title": "Political Systems",
+    	"description": "Study vocabulary for discussing different forms of government and political processes. You'll learn to analyze political events and express opinions."
+  	},
+  	{
+    	"title": "Scientific Discoveries",
+    	"description": "Learn vocabulary related to scientific research and breakthroughs. You'll practice discussing scientific developments and their implications."
+  	},
+  	{
+    	"title": "Social Issues",
+    	"description": "Master vocabulary for discussing complex social problems. You'll learn to analyze societal challenges and propose solutions."
+  	},
+  	{
+    	"title": "Media Analysis",
+    	"description": "Study vocabulary for analyzing different types of media. You'll learn to discuss media bias and information reliability."
+  	},
+  	{
+    	"title": "Professional Development",
+    	"description": "Learn vocabulary related to career advancement and workplace skills. You'll practice discussing professional goals and challenges."
+  	},
+  	{
+    	"title": "Consumer Behavior",
+    	"description": "Master vocabulary for discussing shopping habits and marketing. You'll learn to analyze consumer trends and advertising strategies."
+  	},
+  	{
+    	"title": "Environmental Policy",
+    	"description": "Study vocabulary related to environmental regulations and conservation. You'll practice discussing environmental policies and their effects."
+  	},
+  	{
+    	"title": "Cultural Identity",
+    	"description": "Learn vocabulary for discussing heritage and cultural belonging. You'll practice exploring questions of identity and cultural integration."
+  	},
+  	{
+    	"title": "Technology Ethics",
+    	"description": "Master vocabulary related to ethical issues in technology. You'll learn to discuss privacy concerns and technological ethics."
+  	},
+  	{
+    	"title": "Healthcare Systems",
+    	"description": "Study vocabulary for discussing healthcare policies and practices. You'll learn to compare different healthcare approaches."
+  	},
+  	{
+    	"title": "Urban Planning",
+    	"description": "Learn vocabulary related to city development and infrastructure. You'll practice discussing urban design and community planning."
+  	},
+  	{
+    	"title": "International Relations",
+    	"description": "Master vocabulary for discussing diplomatic relations and global politics. You'll learn to analyze international conflicts and cooperation."
+  	},
+  	{
+    	"title": "Business Strategy",
+    	"description": "Study vocabulary related to corporate planning and management. You'll practice discussing business models and market analysis."
+  	},
+  	{
+    	"title": "Educational Reform",
+    	"description": "Learn vocabulary for discussing changes in education systems. You'll practice debating educational policies and innovations."
+  	},
+  	{
+    	"title": "Digital Revolution",
+    	"description": "Master vocabulary related to technological transformation. You'll learn to discuss the impact of digitalization on society."
+  	},
+  	{
+    	"title": "Mental Health",
+    	"description": "Study vocabulary for discussing psychological well-being. You'll practice talking about mental health issues and support systems."
+  	},
+  	{
+    	"title": "Cultural Heritage",
+    	"description": "Learn vocabulary related to historical preservation and traditions. You'll practice discussing cultural conservation and change."
+  	},
+  	{
+    	"title": "Gender Issues",
+    	"description": "Master vocabulary for discussing gender roles and equality. You'll learn to analyze gender-related social issues."
+  	},
+  	{
+    	"title": "Innovation and Progress",
+    	"description": "Study vocabulary related to technological and social advancement. You'll practice discussing progress and its implications."
+  	}
+	]
+  },
+  "C1": {
+	"topics": [
+  	{
+    	"title": "Economic Theory",
+    	"description": "Master advanced vocabulary for discussing economic principles and market dynamics. You'll learn to analyze complex economic situations and policies."
+  	},
+  	{
+    	"title": "Philosophy and Ethics",
+    	"description": "Study vocabulary for discussing philosophical concepts and ethical dilemmas. You'll practice engaging in abstract theoretical discussions."
+  	},
+  	{
+    	"title": "Legal Systems",
+    	"description": "Learn advanced vocabulary related to law and justice systems. You'll practice discussing legal principles and court procedures."
+  	},
+  	{
+    	"title": "Scientific Research",
+    	"description": "Master vocabulary for discussing advanced scientific concepts and methodologies. You'll learn to analyze research papers and scientific findings."
+  	},
+  	{
+    	"title": "International Development",
+    	"description": "Study vocabulary related to global development and aid programs. You'll practice discussing development strategies and challenges."
+  	},
+  	{
+    	"title": "Cultural Theory",
+    	"description": "Learn vocabulary for analyzing cultural phenomena and social structures. You'll practice discussing cultural criticism and theory."
+  	},
+  	{
+    	"title": "Advanced Technology",
+    	"description": "Master vocabulary related to cutting-edge technological developments. You'll learn to discuss complex technological concepts."
+  	},
+  	{
+    	"title": "Political Philosophy",
+    	"description": "Study vocabulary for discussing political theories and ideologies. You'll practice analyzing political systems and governance models."
+  	},
+  	{
+    	"title": "Psychological Analysis",
+    	"description": "Learn advanced vocabulary for discussing human behavior and mental processes. You'll practice analyzing psychological theories and research."
+  	},
+  	{
+    	"title": "Literary Criticism",
+    	"description": "Master vocabulary for analyzing literature and narrative techniques. You'll learn to discuss literary works and their interpretations."
+  	},
+  	{
+    	"title": "Environmental Science",
+    	"description": "Study advanced vocabulary related to ecology and environmental systems. You'll practice discussing complex environmental issues."
+  	},
+  	{
+    	"title": "Media Theory",
+    	"description": "Learn vocabulary for analyzing media influence and communication theories. You'll practice discussing media effects and social impact."
+  	},
+  	{
+    	"title": "Sociolinguistics",
+    	"description": "Master vocabulary related to language use in society. You'll learn to discuss language variation and social contexts."
+  	},
+  	{
+    	"title": "Art History",
+    	"description": "Study vocabulary for discussing artistic movements and their cultural context. You'll practice analyzing artwork and artistic periods."
+  	},
+  	{
+    	"title": "Public Policy",
+    	"description": "Learn advanced vocabulary for discussing policy-making and implementation. You'll practice analyzing policy effects and outcomes."
+  	},
+  	{
+    	"title": "Cognitive Science",
+    	"description": "Master vocabulary related to mind, brain, and behavior. You'll learn to discuss cognitive processes and research findings."
+  	},
+  	{
+    	"title": "Social Movements",
+    	"description": "Study vocabulary for discussing collective action and social change. You'll practice analyzing activism and social movements."
+  	},
+  	{
+    	"title": "Anthropological Theory",
+    	"description": "Learn vocabulary for discussing human cultures and societies. You'll practice analyzing cultural practices and beliefs."
+  	},
+  	{
+    	"title": "Organizational Behavior",
+    	"description": "Master vocabulary related to workplace dynamics and management. You'll learn to discuss organizational structures and processes."
+  	},
+  	{
+    	"title": "Research Methodology",
+    	"description": "Study vocabulary for discussing research design and analysis. You'll practice evaluating research methods and findings."
+  	}
+	]
+  },
+  "C2": {
+	"topics": [
+  	{
+    	"title": "Epistemology",
+    	"description": "Master vocabulary for discussing theories of knowledge and understanding. You'll learn to analyze complex philosophical arguments about the nature of knowledge."
+  	},
+  	{
+    	"title": "Quantum Mechanics",
+    	"description": "Study advanced vocabulary related to quantum physics and its implications. You'll practice discussing complex scientific theories and their interpretations."
+  	},
+  	{
+    	"title": "Constitutional Law",
+    	"description": "Learn specialized vocabulary for discussing legal frameworks and constitutional principles. You'll practice analyzing complex legal arguments and precedents."
+  	},
+  	{
+    	"title": "Economic Policy Analysis",
+    	"description": "Master vocabulary for discussing advanced economic theories and policy implications. You'll learn to analyze complex economic models and their applications."
+  	},
+  	{
+    	"title": "Critical Theory",
+    	"description": "Study vocabulary for discussing advanced social and cultural criticism. You'll practice analyzing theoretical frameworks and their applications."
+  	},
+  	{
+    	"title": "Neuroscience",
+    	"description": "Learn specialized vocabulary related to brain function and neural processes. You'll practice discussing advanced neurological research and findings."
+  	},
+  	{
+    	"title": "International Law",
+    	"description": "Master vocabulary for discussing complex legal issues in international contexts. You'll learn to analyze international treaties and legal frameworks."
+  	},
+  	{
+    	"title": "Systems Theory",
+    	"description": "Study vocabulary for discussing complex systems and their interactions. You'll practice analyzing systemic relationships and emergent properties."
+  	},
+  	{
+    	"title": "Advanced Linguistics",
+    	"description": "Learn specialized vocabulary for discussing language structure and acquisition. You'll practice analyzing linguistic theories and research."
+  	},
+  	{
+    	"title": "Political Economy",
+    	"description": "Master vocabulary for discussing the intersection of politics and economics. You'll learn to analyze complex socio-economic systems."
+  	},
+  	{
+    	"title": "Bioethics",
+    	"description": "Study vocabulary for discussing ethical issues in medicine and biology. You'll practice analyzing complex ethical dilemmas in healthcare."
+  	},
+  	{
+    	"title": "Postmodern Theory",
+    	"description": "Learn specialized vocabulary for discussing postmodern thought and criticism. You'll practice analyzing contemporary cultural phenomena."
+  	},
+  	{
+    	"title": "Advanced Statistics",
+    	"description": "Master vocabulary related to statistical analysis and research methods. You'll learn to discuss complex statistical concepts and their applications."
+  	},
+  	{
+    	"title": "Metaphysics",
+    	"description": "Study vocabulary for discussing fundamental questions about reality and existence. You'll practice analyzing abstract philosophical concepts."
+  	},
+  	{
+    	"title": "Game Theory",
+    	"description": "Learn specialized vocabulary for discussing strategic decision-making. You'll practice analyzing complex game theoretical scenarios."
+  	},
+  	{
+    	"title": "Psychoanalytic Theory",
+    	"description": "Master vocabulary related to psychological analysis and interpretation. You'll learn to discuss complex psychological theories."
+  	},
+  	{
+    	"title": "Artificial Intelligence Ethics",
+    	"description": "Study vocabulary for discussing ethical implications of AI development. You'll practice analyzing complex technological and moral issues."
+  	},
+  	{
+    	"title": "Comparative Literature",
+    	"description": "Learn specialized vocabulary for analyzing literary works across cultures. You'll practice discussing complex literary relationships and influences."
+  	},
+  	{
+    	"title": "Social Network Analysis",
+    	"description": "Master vocabulary for discussing complex social structures and relationships. You'll learn to analyze network dynamics and social patterns."
+  	},
+  	{
+    	"title": "Research Design",
+    	"description": "Study vocabulary for discussing advanced research methodologies. You'll practice analyzing complex research designs and methodological issues."
+  	}
+	]
+  }
+}
