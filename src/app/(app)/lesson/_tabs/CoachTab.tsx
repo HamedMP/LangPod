@@ -1,11 +1,10 @@
-import { Conversation } from "@/components/conversation";
 import { Card } from "@/components/ui/card";
 
-export const ConversationTab = () => {
+export const CoachTab = () => {
   return (
     <div className="space-y-4">
       <Card className="py-16">
-        <Conversation />
+        later
       </Card>
     </div>
   );
