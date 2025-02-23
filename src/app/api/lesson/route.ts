@@ -9,7 +9,13 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { topic, language, nativeLanguage, difficulty } = body;
+    const { 
+      topic, 
+      language, 
+      nativeLanguage, 
+      difficulty,
+      voiceMap
+    } = body;
 
     // Validate required fields
     if (!topic || !language || !nativeLanguage || !difficulty) {
@@ -119,8 +125,14 @@ Return them as a JSON object with keys "first", "second", "third".`;
     /////////////////////////////////
 
     // Initialize voice generator with ElevenLabs provider and speech settings
-    const voiceProvider = new ElevenLabsVoiceProvider(env.ELEVENLABS_API_KEY);
-    const voiceGenerator = new VoiceGenerator(voiceProvider, speechSettings);
+    const voiceProvider = new ElevenLabsVoiceProvider({
+      apiKey: env.ELEVENLABS_API_KEY
+    });
+    const voiceGenerator = new VoiceGenerator(
+      voiceProvider, 
+      speechSettings,
+      voiceMap
+    );
 
     // Generate audio segments for the final content.
     const audioSegments = await voiceGenerator.generateAudioSegments(finalContent);

@@ -5,12 +5,18 @@ import fs from 'fs';
 config({ path: '.env.local' });
 
 async function test() {
-  // Mock request body
+  // Mock request body with custom voice IDs
   const mockBody = {
     topic: "ordering food",
     language: "chinese",
     nativeLanguage: "english",
-    difficulty: "beginner"
+    difficulty: "beginner",
+    // Add custom voice mapping
+    voiceMap: {
+      "Voice1": "LcfcDJNUP1GQjkzn1xUU", // Example ElevenLabs voice ID
+      "Voice2": "jBpfuIE2acCO8z3wKNLl", // Example ElevenLabs voice ID
+      "Voice3": "MF3mGyEYCl7XYWbV9V6O"  // Example ElevenLabs voice ID
+    }
   };
 
   // Create a mock Request object

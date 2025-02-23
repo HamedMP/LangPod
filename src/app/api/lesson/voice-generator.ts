@@ -10,19 +10,26 @@ interface AudioSegment {
 }
 
 export class VoiceGenerator {
-  private voiceMap: Record<string, string> = {
+  // Default voice mapping
+  private static defaultVoiceMap: Record<string, string> = {
     "Voice1": "9BWtsMINqrJLrRacOk9x",
     "Voice2": "CwhRBWXzGAHq8TQ4Fs17",
-    "Voice3": "N2lVS1w4EtoT3dr4eOWO",
+    "Voice3": "XB0fDUnXU5powFXDhCwa",
   };
+
+  private voiceMap: Record<string, string>;
 
   constructor(
     private voiceProvider: VoiceProvider,
     private speechSettings?: {
       stability: number;
       similarity: number;
-    }
-  ) {}
+    },
+    voiceMap?: Record<string, string>
+  ) {
+    // Use provided voice map or fall back to defaults
+    this.voiceMap = voiceMap || VoiceGenerator.defaultVoiceMap;
+  }
 
   async generateAudioSegments(conversation: string): Promise<AudioSegment[]> {
     const segments: AudioSegment[] = [];

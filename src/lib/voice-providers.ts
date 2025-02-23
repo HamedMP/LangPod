@@ -11,15 +11,20 @@ export interface VoiceProvider {
   generateSilence(duration: number): Promise<string>;
 }
 
+export interface VoiceProviderConfig {
+  apiKey: string;
+  voiceMap?: Record<string, string>;
+}
+
 // ElevenLabs Voice Provider
 export class ElevenLabsVoiceProvider implements VoiceProvider {
   private apiKey: string;
 
-  constructor(apiKey: string) {
-    if (!apiKey) {
+  constructor(config: VoiceProviderConfig) {
+    if (!config.apiKey) {
       throw new Error("ElevenLabs API key is required");
     }
-    this.apiKey = apiKey;
+    this.apiKey = config.apiKey;
   }
 
   async generateAudio(
