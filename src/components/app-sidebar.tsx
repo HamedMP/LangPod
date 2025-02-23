@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
-import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import {
   Select,
   SelectContent,
@@ -24,13 +29,10 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { demos } from "@/lib/demos";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const { openSignIn } = useClerk();
-  const { user } = useUser();
 
   return (
     <Sidebar {...props} className="bg-background">
@@ -100,22 +102,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </button>
           </SignInButton>
         </SignedOut>
-        
         <SignedIn>
-          <button 
-            onClick={() => openSignIn()}
-            className="flex w-full items-center gap-3 rounded-md p-2 hover:bg-muted"
-          >
-            <Avatar>
-              <AvatarImage src={user?.imageUrl} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50">
-                {user?.firstName?.[0] || user?.username?.[0] || "?"}
-              </AvatarFallback>
-            </Avatar>
-            <span className="flex-1 text-sm font-medium">
-              {user?.fullName || user?.username}
-            </span>
-          </button>
+          <UserButton
+            showName
+            appearance={{
+              elements: {
+                userButtonBox:
+                  "flex !flex-row-reverse !justify-end !w-full gap-3 p-2 rounded-lg hover:bg-sidebar-accent transition",
+                rootBox: "!w-full",
+                userButtonTrigger: "!w-full",
+                userButtonOuterIdentifier__open: "!bg-red-100",
+              },
+            }}
+          />
         </SignedIn>
       </SidebarFooter>
     </Sidebar>
