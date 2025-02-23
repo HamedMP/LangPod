@@ -14,9 +14,9 @@ plugin hooks {
   output = './src/hooks/zenstack'
 }
 
-plugin zenstackmd {
-    provider = 'zenstack-markdown'
-}
+// plugin zenstackmd {
+//     provider = 'zenstack-markdown'
+// }
 
 model User {
   id        String   @id @default(uuid())

@@ -15,7 +15,7 @@
     "db:reset": "prisma migrate reset",
     "db:browse": "prisma studio",
     "generate": "dotenv -e .env.local -- zenstack generate && dotenv -e .env.local -- npx prisma db push",
-    "generate:prod": "zenstack generate && pnpm run db:deploy",
+    "generate:prod": "zenstack generate",
     "sync-clerk": "tsx src/scripts/sync-clerk-data.ts",
     "seed:languages": "tsx src/scripts/seed-languages.ts"
   },
