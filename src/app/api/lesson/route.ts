@@ -54,19 +54,19 @@ export async function POST(request: Request) {
     /////////////////////////////////
     // NEW: Process conversation repetition and dialogue label translation.
     let finalContent = content; // Default to original content.
-    // Use regex to extract the <CONVERSATION> block.
-    const conversationRegex = /<CONVERSATION>([\s\S]*?)<\/CONVERSATION>/i;
-    const conversationMatch = conversationRegex.exec(content);
+    // Use regex to extract the <Dialogue> block.
+    const dialogueRegex = /<Dialogue>([\s\S]*?)<\/Dialogue>/i;
+    const dialogueMatch = dialogueRegex.exec(content);
 
-    if (conversationMatch) {
-      console.log("Extracted conversation block for repetition.");
-      const conversationContent = conversationMatch[1]; // Actual conversation inside tags.
-      const conversationStart = conversationMatch.index;
+    if (dialogueMatch) {
+      console.log("Extracted dialogue block for repetition.");
+      const dialogueContent = dialogueMatch[1]; // Actual dialogue inside tags.
+      const dialogueStart = dialogueMatch.index;
       // Correct calculation of the end index of the match.
-      const conversationEnd = conversationMatch.index + conversationMatch[0].length;
+      const dialogueEnd = dialogueMatch.index + dialogueMatch[0].length;
       // Split the original content into intro and conclusion parts.
-      const intro = content.slice(0, conversationStart);
-      const conclusion = content.slice(conversationEnd);
+      const intro = content.slice(0, dialogueStart);
+      const conclusion = content.slice(dialogueEnd);
 
       // Build a prompt for translation: these phrases will be spoken by a third voice.
       const translationPrompt = `Translate the following phrases into ${nativeLanguage}:
@@ -100,19 +100,19 @@ Return them as a JSON object with keys "first", "second", "third".`;
         };
       }
 
-      // Construct the repeated conversation block with dialogue labels.
-      const repeatedConversation =
+      // Construct the repeated dialogue block with dialogue labels.
+      const repeatedDialogue =
         `<Dialogue Voice="Voice3">${translations.first}</Dialogue>\n` +
-        `<CONVERSATION>${conversationContent}</CONVERSATION>\n` +
+        `<Dialogue>${dialogueContent}</Dialogue>\n` +
         `<Dialogue Voice="Voice3">${translations.second}</Dialogue>\n` +
-        `<CONVERSATION>${conversationContent}</CONVERSATION>\n` +
+        `<Dialogue>${dialogueContent}</Dialogue>\n` +
         `<Dialogue Voice="Voice3">${translations.third}</Dialogue>\n` +
-        `<CONVERSATION>${conversationContent}</CONVERSATION>\n`;
+        `<Dialogue>${dialogueContent}</Dialogue>\n`;
 
-      // Reassemble the full content with the repeated conversation inserted.
-      finalContent = intro + repeatedConversation + conclusion;
+      // Reassemble the full content with the repeated dialogue inserted.
+      finalContent = intro + repeatedDialogue + conclusion;
     } else {
-      console.warn("No <CONVERSATION> block found; using original content.");
+      console.warn("No <Dialogue> block found; using original content.");
     }
     /////////////////////////////////
 

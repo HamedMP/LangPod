@@ -36,13 +36,13 @@ Example Structure:
 
 <Pause Duration="1"/>
 
-<CONVERSATION>
-<PersonA Voice="Voice1">[Line in ${language}]</PersonA>
-<Pause Duration="0.5"/>
-<PersonB Voice="Voice2">[Response in ${language}]</PersonB>
-<Pause Duration="0.5"/>
-[Continue with short dialogue in ${language}...]
-</CONVERSATION>
+<Dialogue>
+  <PersonA Voice="Voice1">[Line in ${language}]</PersonA>
+  <Pause Duration="0.5"/>
+  <PersonB Voice="Voice2">[Response in ${language}]</PersonB>
+  <Pause Duration="0.5"/>
+  [Continue with short dialogue in ${language}...]
+</Dialogue>
 
 <Pause Duration="1"/>
 
