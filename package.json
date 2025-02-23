@@ -3,15 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev": "next dev --turbopack",
+    "build": "pnpm run generate:prod && next build",
+    "build:dev": "next build",
+    "inngest": "pnpm dlx inngest-cli@latest dev --no-discovery -u localhost:3000/api/inngest",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
+    "db:browse": "prisma studio",
+    "generate": "dotenv -e .env.local -- zenstack generate && dotenv -e .env.local -- npx prisma db push",
+    "generate:prod": "zenstack generate && pnpm run db:deploy",
+    "sync-clerk": "tsx src/scripts/sync-clerk-data.ts",
+    "seed:languages": "tsx src/scripts/seed-languages.ts"
   },
   "dependencies": {
     "@11labs/client": "^0.0.7",
     "@11labs/react": "^0.0.7",
     "@anthropic-ai/sdk": "^0.36.3",
+    "@clerk/backend": "^1.24.2",
     "@clerk/nextjs": "^6.12.0",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^4.1.0",
@@ -42,7 +54,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
     "elevenlabs": "^1.51.0",
     "framer-motion": "11",
     "inngest": "^3.31.11",
@@ -75,6 +86,8 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
+    "@zenstackhq/tanstack-query": "^2.11.6",
+    "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.2.0-canary.56",
     "eslint-plugin-jest": "^28.11.0",
@@ -85,7 +98,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.3",
     "typescript": "^5",
-    "zenstack": "2.11.6"
+    "zenstack": "2.11.6",
+    "zenstack-markdown": "^0.4.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

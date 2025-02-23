@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios";
 
 export interface LessonRequest {
   topic: string;
@@ -19,7 +19,7 @@ export interface LessonResponse {
   segments: AudioSegment[];
 }
 
-export const createLesson = async (data: LessonRequest): Promise<LessonResponse> => {
-  const response = await axios.post("/api/lesson", data);
-  return response.data;
-}; 
+// export const createLesson = async (data: LessonRequest): Promise<LessonResponse> => {
+//   const response = await axios.post("/api/lesson", data);
+//   return response.data;
+// };
