@@ -232,6 +232,15 @@ const metadata = {
                     name: "audioUrl",
                     type: "String",
                     isOptional: true,
+                }, audioUrls: {
+                    name: "audioUrls",
+                    type: "String",
+                    isArray: true,
+                    attributes: [{ "name": "@default", "args": [] }],
+                }, segments: {
+                    name: "segments",
+                    type: "Json",
+                    isOptional: true,
                 }, createdAt: {
                     name: "createdAt",
                     type: "DateTime",

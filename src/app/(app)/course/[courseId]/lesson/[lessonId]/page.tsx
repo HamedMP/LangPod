@@ -8,8 +8,10 @@ import { ConversationTab } from "@/app/(app)/lesson/_tabs/ConversationTab";
 import { CoachTab } from "@/app/(app)/lesson/_tabs/CoachTab";
 import { useAuth } from "@clerk/nextjs";
 import { useSidebar } from "@/contexts/sidebar-context";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Course, Language, Lesson } from "@prisma/client";
+import { generateLessonContent } from "@/app/actions/lesson";
+import { Button } from "@/components/ui/button";
 
 interface LessonWithRelations extends Lesson {
   course: Course & {
@@ -23,11 +25,17 @@ export default function LessonPage() {
   const { courseId, lessonId } = useParams();
   const { userId } = useAuth();
   const { updateSidebarInfo } = useSidebar();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [audioSources, setAudioSources] = useState<string[]>([]);
+  const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
 
-  const { data: lesson, isLoading } = useFindUniqueLesson<{
-    where: {
-      id: string;
-    };
+  const {
+    data: lesson,
+    isLoading,
+    refetch,
+  } = useFindUniqueLesson<{
+    where: { id: string };
     include: {
       course: {
         include: {
@@ -57,6 +65,16 @@ export default function LessonPage() {
   });
 
   useEffect(() => {
+    if (lesson && isGenerating) {
+      const interval = setInterval(() => {
+        refetch();
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [lesson, refetch, isGenerating]);
+
+  useEffect(() => {
     if (lesson) {
       const course = lesson.course;
       updateSidebarInfo({
@@ -65,11 +83,52 @@ export default function LessonPage() {
       });
     }
 
-    // Cleanup when unmounting
     return () => {
       updateSidebarInfo({ userCourseId: undefined, courseName: undefined });
     };
   }, [lesson, courseId, updateSidebarInfo]);
+
+  // Handle audio segment completion and play next
+  const handleAudioEnded = () => {
+    if (currentAudioIndex < audioSources.length - 1) {
+      setCurrentAudioIndex((prev) => prev + 1);
+    }
+  };
+
+  // Update audio sources when lesson data changes
+  useEffect(() => {
+    if (lesson) {
+      // Handle both old and new audio storage formats
+      const sources = lesson.audioUrls?.length
+        ? lesson.audioUrls
+        : lesson.audioUrl
+          ? [lesson.audioUrl]
+          : [];
+      setAudioSources(sources);
+      setCurrentAudioIndex(0);
+    }
+  }, [lesson]);
+
+  // Update audio source when currentAudioIndex changes
+  useEffect(() => {
+    if (audioRef.current && audioSources[currentAudioIndex]) {
+      audioRef.current.src = audioSources[currentAudioIndex];
+      audioRef.current.play().catch(console.error);
+    }
+  }, [currentAudioIndex, audioSources]);
+
+  const handleGenerateLesson = async () => {
+    if (!lesson) return;
+
+    setIsGenerating(true);
+    try {
+      await generateLessonContent(lesson.id);
+      refetch();
+    } catch (error) {
+      console.error("Failed to generate lesson:", error);
+      setIsGenerating(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -105,6 +164,33 @@ export default function LessonPage() {
             {typedLesson.course.targetLanguage.name} • Level{" "}
             {typedLesson.course.level}
           </p>
+          <div className="mt-4">
+            {audioSources.length > 0 ? (
+              <div className="space-y-2">
+                <audio
+                  ref={audioRef}
+                  controls
+                  onEnded={handleAudioEnded}
+                  className="w-full"
+                />
+                {audioSources.length > 1 && (
+                  <div className="text-sm text-muted-foreground">
+                    Playing segment {currentAudioIndex + 1} of{" "}
+                    {audioSources.length}
+                  </div>
+                )}
+              </div>
+            ) : isGenerating ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                Generating lesson audio...
+              </div>
+            ) : (
+              <Button onClick={handleGenerateLesson} className="w-full">
+                Generate Lesson Audio
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -116,7 +202,6 @@ export default function LessonPage() {
             <TabsTrigger value="coach">Coach</TabsTrigger>
           </TabsList>
           <TabsContent value="pod" className="h-[600px]">
-            {/* <PodTab lesson={typedLesson} /> */}
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Pod feature coming soon
             </div>

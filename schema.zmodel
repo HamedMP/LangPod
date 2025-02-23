@@ -82,10 +82,12 @@ enum UserCourseRole {
 model Lesson {
   id               String    @id @default(uuid())
   title            String
-  type            String    // 'catalog' or 'user_generated'
+  type             String    // 'catalog' or 'user_generated'
   scenarioContext  String
-  lessonJson Json?   
-  audioUrl        String?   
+  lessonJson       Json?   
+  audioUrl         String?   // keeping for backward compatibility
+  audioUrls        String[]  @default([]) // Array of audio segment URLs
+  segments         Json?     // Store segments metadata
   createdAt        DateTime  @default(now())
 
   // Relations

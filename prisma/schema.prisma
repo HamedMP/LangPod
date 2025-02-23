@@ -73,6 +73,8 @@ model Lesson {
   scenarioContext String
   lessonJson      Json?
   audioUrl        String?
+  audioUrls       String[]       @default([])
+  segments        Json?
   createdAt       DateTime       @default(now())
   course          Course         @relation(fields: [courseId], references: [id])
   courseId        String
