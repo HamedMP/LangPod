@@ -7,72 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id              String    @id @default(uuid())
-  clerkId         String    @unique
-  targetLanguage  String
-  proficiencyLevel String
-  learningGoals   String[]
-  createdAt       DateTime  @default(now())
+  id        String   @id @default(uuid())
+  clerkId   String   @unique
+  createdAt DateTime @default(now())
 
   // Relations
-  progress        Progress[]
-  vocabulary      Vocabulary[]
-  lessons         Lesson[]
+  studentCourses Course[]    @relation("StudentCourses")
+  tutorCourses  Course[]    @relation("TutorCourses")
+  lessons       Lesson[]
+}
 
-  // Access policies
-//   @@allow('read,create', true)
-//   @@allow('update,delete', auth() == this)
+model Language {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relations
+  nativeCourses Course[] @relation("NativeLanguage")
+  targetCourses Course[] @relation("TargetLanguage")
+  nativeCatalog LessonCatalog[] @relation("CatalogNativeLanguage")
+  targetCatalog LessonCatalog[] @relation("CatalogTargetLanguage")
+}
+
+model Course {
+  id             String   @id @default(uuid())
+  nativeLanguage Language @relation("NativeLanguage", fields: [nativeLanguageId], references: [id])
+  nativeLanguageId String
+  targetLanguage Language @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
+  targetLanguageId String
+  level          String   // A1, A2, B1, B2, C1, C2
+  createdAt      DateTime @default(now())
+
+  // Relations
+  student        User      @relation("StudentCourses", fields: [studentId], references: [id])
+  studentId      String
+  tutor          User?     @relation("TutorCourses", fields: [tutorId], references: [id])
+  tutorId        String?
+  lessons        Lesson[]
 }
 
 model Lesson {
   id               String    @id @default(uuid())
   title            String
+  type            String    // 'catalog' or 'user_generated'
   scenarioContext  String
-  difficultyLevel  String
-  conversationScript Json
-  vocabulary       Json
-  grammarPoints    Json?
+  lessonJson Json?   // For user-generated content
+  audioUrl        String?   // For user-generated content
   createdAt        DateTime  @default(now())
 
   // Relations
+  course           Course    @relation(fields: [courseId], references: [id])
+  courseId         String
   user             User      @relation(fields: [userId], references: [id])
   userId           String
-  progress         Progress[]
-
-  // Access policies
-//   @@allow('read', true)
-//   @@allow('create,update,delete', auth() == user)
+  progress         ProgressStatus
 }
 
-model Progress {
-  id               String    @id @default(uuid())
-  completionStatus String
-  timeSpent        Int      // in seconds
-  createdAt        DateTime  @default(now())
-
-  // Relations
-  user             User      @relation(fields: [userId], references: [id])
-  userId           String
-  lesson           Lesson    @relation(fields: [lessonId], references: [id])
-  lessonId         String
-
-  // Access policies
-//   @@allow('read,create,update,delete', auth() == user)
+model LessonCatalog {
+  id             String   @id @default(uuid())
+  nativeLanguage Language @relation("CatalogNativeLanguage", fields: [nativeLanguageId], references: [id])
+  nativeLanguageId String
+  targetLanguage Language @relation("CatalogTargetLanguage", fields: [targetLanguageId], references: [id])
+  targetLanguageId String
+  content        Json     // Contains: { lessons: [{ index, title, description, text, audioUrl, imageUrl, difficulty }] }
+  createdAt      DateTime @default(now())
 }
 
-model Vocabulary {
-  id               String    @id @default(uuid())
-  word             String
-  translation      String
-  masteryLevel     Int      @default(0)
-  lastReviewed     DateTime?
-
-  // Relations
-  user             User      @relation(fields: [userId], references: [id])
-  userId           String
-
-  // Access policies
-//   @@allow('read,create,update,delete', auth() == user)
+enum ProgressStatus {
+  COMPLETED
+  IN_PROGRESS
+  NOT_STARTED
 }
