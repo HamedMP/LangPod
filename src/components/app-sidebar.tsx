@@ -7,6 +7,7 @@ import {
   RedirectToSignIn,
   SignedIn,
   SignedOut,
+  SignInButton,
   UserButton,
 } from "@clerk/nextjs";
 import { useEffect } from "react";
@@ -114,17 +115,6 @@ export function AppSidebar({
   const currentUserCourse = typedUserCourses?.find(
     (uc) => uc.id === userCourseId
   );
-
-  console.log("Sidebar Data:", {
-    userCourseId,
-    currentUserCourse,
-    lessons: currentUserCourse?.course?.lessons,
-    allUserCourses: typedUserCourses?.map((uc) => ({
-      id: uc.id,
-      courseId: uc.courseId,
-      lessonCount: uc.course.lessons?.length,
-    })),
-  });
 
   // Group courses by native language
   const coursesByNativeLanguage = React.useMemo(() => {
@@ -330,7 +320,7 @@ export function AppSidebar({
           About LangPods
         </Link>
         <SignedOut>
-          <RedirectToSignIn redirectUrl={"/"} />
+          <SignInButton />
         </SignedOut>
         <SignedIn>
           <UserButton
