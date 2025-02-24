@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 interface PodTabProps {
   audioUrls: string[];
   segments: Array<{ text: string; voice: string }>;
+  onGenerateLesson?: () => Promise<void>;
+  isGenerating?: boolean;
 }
 
 interface WordWithTiming {
@@ -18,7 +20,12 @@ interface WordWithTiming {
   endTime: number;
 }
 
-export const PodTab = ({ audioUrls, segments }: PodTabProps) => {
+export const PodTab = ({
+  audioUrls,
+  segments,
+  onGenerateLesson,
+  isGenerating,
+}: PodTabProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -199,8 +206,28 @@ export const PodTab = ({ audioUrls, segments }: PodTabProps) => {
 
   if (!audioUrls.length || !segments.length) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        No audio content available
+      <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
+        <div className="text-lg text-muted-foreground max-w-lg">
+          This lesson hasn't been generated in this language yet. Generate it
+          now to get started with the audio content.
+        </div>
+        {onGenerateLesson && (
+          <Button
+            onClick={onGenerateLesson}
+            disabled={isGenerating}
+            size="lg"
+            className="min-w-[200px]"
+          >
+            {isGenerating ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                Generating...
+              </>
+            ) : (
+              "Generate Lesson Audio"
+            )}
+          </Button>
+        )}
       </div>
     );
   }

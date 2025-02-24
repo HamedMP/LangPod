@@ -5,8 +5,10 @@ import { ElevenLabsVoiceProvider } from "@/lib/voice-providers";
 import { env } from "@/env.mjs";
 import { put } from "@vercel/blob";
 import { generateText } from "ai";
-import Anthropic from "@anthropic-ai/sdk";
 import { PostHog } from "posthog-node";
+import { withTracing } from "@posthog/ai";
+
+import { createAnthropic } from "@ai-sdk/anthropic";
 
 interface RequestBody {
   topic: string;
@@ -21,84 +23,19 @@ const phClient = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
   host: env.NEXT_PUBLIC_POSTHOG_HOST,
 });
 
-// Initialize Anthropic client
-const anthropicClient = new Anthropic({
+const anthropicModel = createAnthropic({
   apiKey: env.ANTHROPIC_API_KEY,
 });
 
-// Create an adapter for the Anthropic client to match the LanguageModelV1 interface
-const anthropicAdapter = {
-  specificationVersion: "v1" as const,
-  provider: "anthropic",
-  modelId: "claude-3-5-sonnet-20240620",
-  defaultObjectGenerationMode: "none",
-  async generateText(options: { prompt: string; system?: string }) {
-    const response = await anthropicClient.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 1500,
-      temperature: 0.7,
-      system: options.system,
-      messages: [{ role: "user", content: options.prompt }],
-    });
+const model = withTracing(anthropicModel("claude-3-5-haiku-latest"), phClient, {
+  posthogDistinctId: "user_123", // optional
+  posthogTraceId: "trace_123", // optional
+  posthogProperties: { conversation_id: "abc123", paid: true }, // optional
+  posthogPrivacyMode: false, // optional
+  posthogGroups: { company: "company_id_in_your_db" }, // optional
+});
 
-    if ("content" in response && Array.isArray(response.content)) {
-      const block = response.content[0];
-      if (block?.type === "text") {
-        return block.text;
-      }
-    }
-    throw new Error("No text content in Anthropic response");
-  },
-  async generateObjects() {
-    throw new Error("Object generation not supported");
-  },
-  async doGenerate(options: { prompt: string; system?: string }) {
-    const response = await anthropicClient.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 1500,
-      temperature: 0.7,
-      system: options.system,
-      messages: [{ role: "user", content: options.prompt }],
-    });
-
-    if ("content" in response && Array.isArray(response.content)) {
-      const block = response.content[0];
-      if (block?.type === "text") {
-        return {
-          text: block.text,
-          data: null,
-        };
-      }
-    }
-    throw new Error("No text content in Anthropic response");
-  },
-  async doStream(options: { prompt: string; system?: string }) {
-    const stream = await anthropicClient.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 1500,
-      temperature: 0.7,
-      system: options.system,
-      messages: [{ role: "user", content: options.prompt }],
-      stream: true,
-    });
-
-    return {
-      async *[Symbol.asyncIterator]() {
-        for await (const message of stream) {
-          if ("content" in message && Array.isArray(message.content)) {
-            const block = message.content[0];
-            if (block?.type === "text") {
-              yield {
-                type: "text" as const,
-                text: block.text,
-              };
-            }
-          }
-        }
-      },
-    };
-  },
-};
+phClient.shutdown();
 
 export async function POST(request: Request) {
   try {
@@ -150,7 +87,7 @@ export async function POST(request: Request) {
       });
 
       const { text } = await generateText({
-        model: anthropicAdapter,
+        model: model,
         system: prompt,
         prompt: `Create a conversation about ${topic} following the format specified.`,
         maxTokens: 1500,
@@ -230,7 +167,7 @@ Return them as a JSON object with keys "first", "second", "third".`;
       let translationResponse;
       try {
         const { text } = await generateText({
-          model: anthropicAdapter,
+          model: model,
           system:
             "You are a translation assistant. Respond with valid JSON only.",
           prompt: translationPrompt,

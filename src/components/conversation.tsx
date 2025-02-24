@@ -188,7 +188,7 @@ export function Conversation() {
 
             <div
               className={cn(
-                "orb my-16 mx-12",
+                "orb my-16 mx-12 animate-orb-slow orb-active",
                 isSpeaking ? "animate-orb" : isConnected && "animate-orb-slow",
                 isConnected ? "orb-active" : "orb-inactive"
               )}

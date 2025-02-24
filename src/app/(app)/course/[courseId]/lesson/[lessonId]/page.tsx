@@ -158,22 +158,6 @@ export default function LessonPage() {
             {typedLesson.course.targetLanguage.name} • Level{" "}
             {typedLesson.course.level}
           </p>
-          <div className="mt-4">
-            {typedLesson.audioUrls.length > 0 || typedLesson.audioUrl ? (
-              <div className="text-sm text-muted-foreground">
-                Audio content is ready
-              </div>
-            ) : isGenerating ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-                Generating lesson audio...
-              </div>
-            ) : (
-              <Button onClick={handleGenerateLesson} className="w-full">
-                Generate Lesson Audio
-              </Button>
-            )}
-          </div>
         </div>
       </div>
 
@@ -199,6 +183,8 @@ export default function LessonPage() {
                   voice: string;
                 }>) || []
               }
+              onGenerateLesson={handleGenerateLesson}
+              isGenerating={isGenerating}
             />
           </TabsContent>
           <TabsContent value="conversation" className="h-[600px]">

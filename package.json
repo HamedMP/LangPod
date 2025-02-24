@@ -22,6 +22,7 @@
   "dependencies": {
     "@11labs/client": "^0.0.7",
     "@11labs/react": "^0.0.7",
+    "@ai-sdk/anthropic": "^1.1.9",
     "@anthropic-ai/sdk": "^0.36.3",
     "@clerk/backend": "^1.24.2",
     "@clerk/nextjs": "^6.12.0",

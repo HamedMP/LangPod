@@ -320,7 +320,7 @@ export function AppSidebar({
           About LangPods
         </Link>
         <SignedOut>
-          <SignInButton />
+          <SignInButton mode="modal" />
         </SignedOut>
         <SignedIn>
           <UserButton
