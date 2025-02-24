@@ -7,8 +7,11 @@ import { put } from "@vercel/blob";
 import { generateText } from "ai";
 import { PostHog } from "posthog-node";
 import { withTracing } from "@posthog/ai";
+import { auth } from "@clerk/nextjs/server";
 
 import { createAnthropic } from "@ai-sdk/anthropic";
+
+export const maxDuration = 300;
 
 interface RequestBody {
   topic: string;
@@ -18,31 +21,31 @@ interface RequestBody {
   voiceMap: Record<string, string>;
 }
 
-// Initialize PostHog client for LLM observability
-const phClient = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-  host: env.NEXT_PUBLIC_POSTHOG_HOST,
-});
-
-const anthropicModel = createAnthropic({
-  apiKey: env.ANTHROPIC_API_KEY,
-});
-
-const model = withTracing(anthropicModel("claude-3-5-haiku-latest"), phClient, {
-  posthogDistinctId: "user_123", // optional
-  posthogTraceId: "trace_123", // optional
-  posthogProperties: { conversation_id: "abc123", paid: true }, // optional
-  posthogPrivacyMode: false, // optional
-  posthogGroups: { company: "company_id_in_your_db" }, // optional
-});
-
-phClient.shutdown();
-
 export async function POST(request: Request) {
+  // Initialize PostHog client for LLM observability
+  const phClient = new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
+    host: env.NEXT_PUBLIC_POSTHOG_HOST,
+  });
+
+  const anthropicModel = createAnthropic({
+    apiKey: env.ANTHROPIC_API_KEY,
+  });
   try {
     // Parse the request body
     const body = await request.json();
-    console.log("Request body:", body);
     const { topic, language, nativeLanguage, difficulty, voiceMap } = body;
+
+    const { userId } = await auth();
+
+    const model = withTracing(
+      anthropicModel("claude-3-5-haiku-latest"),
+      phClient,
+      {
+        posthogDistinctId: userId ?? undefined,
+        posthogProperties: { topic, language, nativeLanguage, difficulty }, // optional
+        posthogPrivacyMode: false,
+      }
+    );
 
     // Validate required fields
     if (!topic || !language || !nativeLanguage || !difficulty) {
@@ -80,7 +83,7 @@ export async function POST(request: Request) {
         event: "llm_request",
         properties: {
           provider: "anthropic",
-          model: "claude-3-5-sonnet-20240620",
+          model: "claude-3-5-haiku-latest",
           messageCount: 2,
           hasSystemMessage: true,
         },
@@ -203,6 +206,8 @@ Return them as a JSON object with keys "first", "second", "third".`;
         console.error("Translation LLM Error:", error);
         translationResponse = `{"first": "Dialogue, first time", "second": "Dialogue, second time", "third": "Dialogue, third time"}`;
       }
+
+      phClient.shutdown();
 
       // Parse the JSON response.
       let translations;
